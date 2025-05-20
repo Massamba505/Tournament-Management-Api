@@ -1,0 +1,52 @@
+using Microsoft.AspNetCore.Mvc;
+using Tournament.Management.API.Models.Dto.User;
+using Tournament.Management.API.Services.Interfaces;
+
+namespace Tournament.Management.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController(IAuthService authService) : ControllerBase
+    {
+        private readonly IAuthService _authService = authService;
+
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterUserAsync([FromBody] RegisterUserDto registerUserDto)
+        {
+            if (registerUserDto == null)
+            {
+                return BadRequest(new { message = "Invalid details" });
+            }
+
+            try
+            {
+                await _authService.RegisterUserAsync(registerUserDto);
+
+                return Ok(new { message = "Registered successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginUserAsync(LoginUserDto userDetails)
+        {
+            if (userDetails.Email == null || userDetails.Password == null)
+            {
+                return BadRequest(new { message = "Invalid email or password" });
+            }
+
+            try
+            {
+                var token = await _authService.LoginUserAsync(userDetails);
+                return Ok(new { token });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+    }
+}
