@@ -14,11 +14,6 @@ namespace Tournament.Management.API.Repository.Implementations
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<IEnumerable<User>> GetUsersAsync()
-        {
-            return await _context.Users.Include(u => u.Role).ToListAsync();
-        }
-
         public async Task<User?> GetUserByIdAsync(int id)
         {
             return await _context.Users
