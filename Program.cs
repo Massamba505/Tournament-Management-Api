@@ -1,4 +1,7 @@
 
+using Microsoft.Extensions.Options;
+using Scalar.AspNetCore;
+
 namespace Tournament.Management.API
 {
     public class Program
@@ -19,6 +22,10 @@ namespace Tournament.Management.API
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.MapScalarApiReference(options =>
+                {
+                    options.Title = "Tournament Management API";
+                });
             }
 
             app.UseHttpsRedirection();
