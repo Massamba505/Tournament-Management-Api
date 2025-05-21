@@ -20,9 +20,13 @@ namespace Tournament.Management.API.Controllers
 
             try
             {
-                await _authService.RegisterUserAsync(registerUserDto);
+                var token = await _authService.RegisterUserAsync(registerUserDto);
+                if (token == null)
+                {
+                    return BadRequest(new { message = "Invalid details" });
+                }
 
-                return Ok(new { message = "Registered successfully" });
+                return Ok(new { token ,message = "Registered successfully" });
             }
             catch (Exception ex)
             {

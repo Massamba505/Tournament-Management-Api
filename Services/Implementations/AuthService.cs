@@ -9,11 +9,13 @@ namespace Tournament.Management.API.Services.Implementations
     public class AuthService(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
-            IPasswordHelper passwordHelper) : IAuthService
+            IPasswordHelper passwordHelper,
+            ITokenService tokenService) : IAuthService
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IRoleRepository _roleRepository = roleRepository;
         private readonly IPasswordHelper _passwordHelper = passwordHelper;
+        private readonly ITokenService _tokenService = tokenService;
 
         public async Task<string?> LoginUserAsync(LoginUserDto userDto)
         {
@@ -24,7 +26,7 @@ namespace Tournament.Management.API.Services.Implementations
                 return null;
             }
 
-            return GenerateJwtToken(user);
+            return _tokenService.CreateToken(user);
         }
 
         public async Task<string?> RegisterUserAsync(RegisterUserDto registerUserDto)
@@ -48,12 +50,7 @@ namespace Tournament.Management.API.Services.Implementations
 
             await _userRepository.CreateUserAsync(newUser);
 
-            return GenerateJwtToken(newUser);
-        }
-
-        private string GenerateJwtToken(User user)
-        {
-            return "this-token";
+            return _tokenService.CreateToken(newUser);
         }
     }
 }
