@@ -13,9 +13,9 @@ namespace Tournament.Management.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUserAsync([FromBody] RegisterUserDto registerUserDto)
         {
-            if (registerUserDto == null)
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new { message = "Invalid details" });
+                return BadRequest(ModelState);
             }
 
             try
@@ -26,7 +26,7 @@ namespace Tournament.Management.API.Controllers
                     return BadRequest(new { message = "Invalid details" });
                 }
 
-                return Ok(new { token ,message = "Registered successfully" });
+                return Ok(new { token, message = "Registered successfully" });
             }
             catch (Exception ex)
             {
@@ -37,9 +37,9 @@ namespace Tournament.Management.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginUserAsync(LoginUserDto userDetails)
         {
-            if (userDetails.Email == null || userDetails.Password == null)
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new { message = "Invalid email or password" });
+                return BadRequest(ModelState);
             }
 
             try
