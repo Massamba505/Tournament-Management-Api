@@ -8,10 +8,12 @@ namespace Tournament.Management.API.Services.Implementations
 {
     public class AuthService(
             IUserRepository userRepository,
+            IRoleRepository roleRepository,
             IPasswordHelper passwordHelper,
             ITokenService tokenService) : IAuthService
     {
         private readonly IUserRepository _userRepository = userRepository;
+        private readonly IRoleRepository _roleRepository = roleRepository ;
         private readonly IPasswordHelper _passwordHelper = passwordHelper;
         private readonly ITokenService _tokenService = tokenService;
 
@@ -29,13 +31,30 @@ namespace Tournament.Management.API.Services.Implementations
 
         public async Task<string?> RegisterUserAsync(RegisterUserDto registerUserDto)
         {
+            if (registerUserDto.RoleId == null)
+            {
+                return null;
+            }
+
+            var role = await _roleRepository.GetRoleByIdAsync(registerUserDto.RoleId.Value);
+            if (role == null)
+            {
+                return null;
+            }
+
+            var existingUser = await _userRepository.GetUserByEmailAsync(registerUserDto.Email);
+            if (existingUser != null)
+            {
+                return null;
+            }
+
             var newUser = new User()
             {
                 Name = registerUserDto.Name,
                 Surname = registerUserDto.Surname,
                 Email = registerUserDto.Email,
                 PasswordHash = _passwordHelper.HashPassword(registerUserDto.Password),
-                RoleId = registerUserDto.RoleId,
+                RoleId = role.Id,
                 CreatedAt = DateTime.Now
             };
 
