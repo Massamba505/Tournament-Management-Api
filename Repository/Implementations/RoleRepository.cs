@@ -18,7 +18,9 @@ namespace Tournament.Management.API.Repository.Implementations
         }
         public async Task<IEnumerable<Role>> GetAllRolesAsync()
         {
-            return await _context.Roles.ToListAsync();
+            return await _context.Roles
+                .AsNoTracking()
+                .ToListAsync();
         }
     }
 }

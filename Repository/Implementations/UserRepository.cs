@@ -11,7 +11,9 @@ namespace Tournament.Management.API.Repository.Implementations
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
