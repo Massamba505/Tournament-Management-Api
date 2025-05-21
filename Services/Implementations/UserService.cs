@@ -9,50 +9,52 @@ namespace Tournament.Management.API.Services.Implementations
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public async Task DeleteUserAsync(int id)
+        public async Task<bool> DeleteUserAsync(int id)
         {
             var user = await _userRepository.GetUserByIdAsync(id);
             if (user == null)
             {
-                throw new Exception("Invalid User id");
+                return false;
             }
 
             await _userRepository.DeleteUserAsync(user);
+
+            return true;
         }
 
-        public Task<IEnumerable<User>> GettAllUsersAsync()
+        public async Task<IEnumerable<User>> GettAllUsersAsync()
         {
-            return _userRepository.GetAllUsersAsync();
+            return await _userRepository.GetAllUsersAsync();
         }
 
-        public Task<User?> GetUserById(int id)
+        public async Task<User?> GetUserByIdAsync(int id)
         {
-            var user = _userRepository.GetUserByIdAsync(id);
+            var user = await _userRepository.GetUserByIdAsync(id);
             if (user == null)
             {
-                throw new Exception("Invalid id");
+                return null;
             }
 
             return user;
         }
 
-        public Task<User?> GetUserByEmail(string email)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
-            var user = _userRepository.GetUserByEmailAsync(email);
+            var user = await _userRepository.GetUserByEmailAsync(email);
             if (user == null)
             {
-                throw new Exception("Invalid email");
+                return null;
             }
 
             return user;
         }
 
-        public async Task UpdateUserAsync(int userId, UpdateUserDto user)
+        public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto user)
         {
             var userToUpdate = await _userRepository.GetUserByIdAsync(userId);
             if (userToUpdate == null)
             {
-                throw new Exception("Invalid user");
+                return false;
             }
 
             userToUpdate.Name = user.Name;
@@ -60,7 +62,8 @@ namespace Tournament.Management.API.Services.Implementations
             userToUpdate.Email = user.Email;
 
             await _userRepository.UpdateUserAsync(userToUpdate);
-            await _userRepository.UpdateUserAsync(userToUpdate);
+
+            return true;
         }
     }
 }

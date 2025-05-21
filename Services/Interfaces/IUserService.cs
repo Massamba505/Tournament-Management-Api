@@ -6,9 +6,9 @@ namespace Tournament.Management.API.Services.Interfaces
     public interface IUserService
     {
         Task<IEnumerable<User>> GettAllUsersAsync();
-        Task<User?> GetUserById(int id);
-        Task<User?> GetUserByEmail(string email);
-        Task UpdateUserAsync(int userId, UpdateUserDto user);
-        Task DeleteUserAsync(int id);
+        Task<User?> GetUserByIdAsync(int id);
+        Task<User?> GetUserByEmailAsync(string email);
+        Task<bool> UpdateUserAsync(int userId, UpdateUserDto user);
+        Task<bool> DeleteUserAsync(int id);
     }
 }
