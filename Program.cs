@@ -1,8 +1,11 @@
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using Tournament.Management.API.Data;
+using Tournament.Management.API.Helpers.Implementations;
+using Tournament.Management.API.Helpers.Interfaces;
 using Tournament.Management.API.Repository.Implementations;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Implementations;
@@ -34,6 +37,7 @@ namespace Tournament.Management.API
             // Services
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
 
             var app = builder.Build();
 
