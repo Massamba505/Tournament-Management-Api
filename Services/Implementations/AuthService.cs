@@ -7,21 +7,26 @@ using Tournament.Management.API.Services.Interfaces;
 namespace Tournament.Management.API.Services.Implementations
 {
     public class AuthService(
-            IUserRepository userRepository,
-            IRoleRepository roleRepository,
-            IPasswordHelper passwordHelper,
-            ITokenService tokenService) : IAuthService
+        IUserRepository userRepository,
+        IRoleRepository roleRepository,
+        IPasswordHelper passwordHelper,
+        ITokenService tokenService) : IAuthService
     {
         private readonly IUserRepository _userRepository = userRepository;
-        private readonly IRoleRepository _roleRepository = roleRepository ;
+        private readonly IRoleRepository _roleRepository = roleRepository;
         private readonly IPasswordHelper _passwordHelper = passwordHelper;
         private readonly ITokenService _tokenService = tokenService;
 
         public async Task<string?> LoginUserAsync(LoginUserDto userDto)
         {
             var user = await _userRepository.GetUserByEmailAsync(userDto.Email);
+            if (user == null)
+            {
+                return null;
+            }
 
-            if (user == null || !_passwordHelper.VerifyPassword(userDto.Password, user.PasswordHash))
+            var isPasswordValid = _passwordHelper.VerifyPassword(userDto.Password, user.PasswordHash);
+            if (!isPasswordValid)
             {
                 return null;
             }
@@ -33,29 +38,31 @@ namespace Tournament.Management.API.Services.Implementations
         {
             if (registerUserDto.RoleId == null)
             {
-                return null;
+                throw new ArgumentException("RoleId is required");
             }
 
             var role = await _roleRepository.GetRoleByIdAsync(registerUserDto.RoleId.Value);
             if (role == null)
             {
-                return null;
+                throw new ArgumentException("Invalid role");
             }
 
             var existingUser = await _userRepository.GetUserByEmailAsync(registerUserDto.Email);
             if (existingUser != null)
             {
-                return null;
+                throw new ArgumentException("Email already in use");
             }
 
-            var newUser = new User()
+            var hashedPassword = _passwordHelper.HashPassword(registerUserDto.Password);
+
+            var newUser = new User
             {
                 Name = registerUserDto.Name,
                 Surname = registerUserDto.Surname,
                 Email = registerUserDto.Email,
-                PasswordHash = _passwordHelper.HashPassword(registerUserDto.Password),
+                PasswordHash = hashedPassword,
                 RoleId = role.Id,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             await _userRepository.CreateUserAsync(newUser);

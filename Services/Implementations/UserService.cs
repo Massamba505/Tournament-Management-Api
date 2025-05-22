@@ -9,19 +9,6 @@ namespace Tournament.Management.API.Services.Implementations
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public async Task<bool> DeleteUserAsync(int id)
-        {
-            var user = await _userRepository.GetUserByIdAsync(id);
-            if (user == null)
-            {
-                return false;
-            }
-
-            await _userRepository.DeleteUserAsync(user);
-
-            return true;
-        }
-
         public async Task<IEnumerable<User>> GettAllUsersAsync()
         {
             return await _userRepository.GetAllUsersAsync();
@@ -29,40 +16,35 @@ namespace Tournament.Management.API.Services.Implementations
 
         public async Task<User?> GetUserByIdAsync(int id)
         {
-            var user = await _userRepository.GetUserByIdAsync(id);
-            if (user == null)
-            {
-                return null;
-            }
-
-            return user;
+            return await _userRepository.GetUserByIdAsync(id);
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            var user = await _userRepository.GetUserByEmailAsync(email);
-            if (user == null)
-            {
-                return null;
-            }
-
-            return user;
+            return await _userRepository.GetUserByEmailAsync(email);
         }
 
-        public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto user)
+        public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto updatedData)
         {
-            var userToUpdate = await _userRepository.GetUserByIdAsync(userId);
-            if (userToUpdate == null)
-            {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
                 return false;
-            }
 
-            userToUpdate.Name = user.Name;
-            userToUpdate.Surname = user.Surname;
-            userToUpdate.Email = user.Email;
+            user.Name = updatedData.Name;
+            user.Surname = updatedData.Surname;
+            user.Email = updatedData.Email;
 
-            await _userRepository.UpdateUserAsync(userToUpdate);
+            await _userRepository.UpdateUserAsync(user);
+            return true;
+        }
 
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null)
+                return false;
+
+            await _userRepository.DeleteUserAsync(user);
             return true;
         }
     }

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Tournament.Management.API.Data;
-using Tournament.Management.API.Models;
+using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Repository.Interfaces;
 
 namespace Tournament.Management.API.Repository.Implementations

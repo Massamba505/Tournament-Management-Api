@@ -1,4 +1,4 @@
-﻿namespace Tournament.Management.API.Models;
+﻿namespace Tournament.Management.API.Models.Domain;
 
 public partial class Role
 {
