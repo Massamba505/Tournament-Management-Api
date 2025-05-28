@@ -1,6 +1,6 @@
 using Tournament.Management.API.Helpers.Interfaces;
 using Tournament.Management.API.Models;
-using Tournament.Management.API.Models.Dto.User;
+using Tournament.Management.API.Models.DTOs.User;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
 

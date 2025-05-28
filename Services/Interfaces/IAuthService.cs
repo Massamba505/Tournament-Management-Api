@@ -1,4 +1,4 @@
-using Tournament.Management.API.Models.Dto.User;
+using Tournament.Management.API.Models.DTOs.User;
 
 namespace Tournament.Management.API.Services.Interfaces
 {

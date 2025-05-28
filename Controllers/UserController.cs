@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Tournament.Management.API.Models.Dto;
+using Tournament.Management.API.Models.DTOs.User;
 using Tournament.Management.API.Services.Interfaces;
 
 namespace Tournament.Management.API.Controllers
@@ -31,13 +31,12 @@ namespace Tournament.Management.API.Controllers
                 }
 
                 var userDto = new UserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Surname = user.Surname,
-                    Email = user.Email,
-                    RoleId = user.RoleId
-                };
+                (
+                    Id: user.Id,
+                    Name: user.Name,
+                    Surname: user.Surname,
+                    Email: user.Email,
+                    RoleId: user.RoleId);
 
                 return Ok(userDto);
             }
