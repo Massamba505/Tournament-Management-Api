@@ -36,12 +36,7 @@ namespace Tournament.Management.API.Services.Implementations
 
         public async Task<string?> RegisterUserAsync(RegisterUserDto registerUserDto)
         {
-            if (registerUserDto.RoleId == null)
-            {
-                throw new ArgumentException("RoleId is required");
-            }
-
-            var role = await _roleRepository.GetRoleByIdAsync(registerUserDto.RoleId.Value);
+            var role = await _roleRepository.GetRoleByIdAsync(registerUserDto.RoleId);
             if (role == null)
             {
                 throw new ArgumentException("Invalid role");

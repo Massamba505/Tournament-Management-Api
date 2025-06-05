@@ -8,6 +8,7 @@ namespace Tournament.Management.API.Models.DTOs.User
         [Required, StringLength(50)] string Surname,
         [Required, EmailAddress, StringLength(100)] string Email,
         [Required, StringLength(255, MinimumLength = 6)] string Password,
-        [Required] int? RoleId
+        [Required, StringLength(255, MinimumLength = 6)] string ConfirmPassword,
+        [Required] int RoleId
     );
 }

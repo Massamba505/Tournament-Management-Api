@@ -76,7 +76,7 @@ namespace Tournament.Management.API.Controllers
         }
 
         [Authorize]
-        [HttpGet("logout")]
+        [HttpPost("logout")]
         public IActionResult LogoutUser()
         {
             return Ok(new { message = "Logged out successfully" });
