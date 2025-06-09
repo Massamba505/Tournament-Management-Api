@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Tournament.Management.API.Data;
-using Tournament.Management.API.Models;
+using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Repository.Interfaces;
 
 namespace Tournament.Management.API.Repository.Implementations
@@ -16,7 +16,7 @@ namespace Tournament.Management.API.Repository.Implementations
                 .ToListAsync();
         }
 
-        public async Task<User?> GetUserByIdAsync(int id)
+        public async Task<User?> GetUserByIdAsync(Guid id)
         {
             return await _context.Users
                 .Include(u => u.Role)

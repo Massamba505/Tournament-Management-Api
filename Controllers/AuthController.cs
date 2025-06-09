@@ -12,7 +12,7 @@ namespace Tournament.Management.API.Controllers
         private readonly IAuthService _authService = authService;
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto registerUserDto)
+        public async Task<IActionResult> RegisterUser([FromBody] UserRegisterDto userRegisterDto)
         {
             if (!ModelState.IsValid)
             {
@@ -25,7 +25,7 @@ namespace Tournament.Management.API.Controllers
 
             try
             {
-                var token = await _authService.RegisterUserAsync(registerUserDto);
+                var token = await _authService.RegisterUserAsync(userRegisterDto);
 
                 return Ok(new
                 {
@@ -44,7 +44,7 @@ namespace Tournament.Management.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginUser([FromBody] LoginUserDto userDto)
+        public async Task<IActionResult> LoginUser([FromBody] UserLoginDto userLoginDto)
         {
             if (!ModelState.IsValid)
             {
@@ -57,7 +57,7 @@ namespace Tournament.Management.API.Controllers
 
             try
             {
-                var token = await _authService.LoginUserAsync(userDto);
+                var token = await _authService.LoginUserAsync(userLoginDto);
                 if (token == null)
                 {
                     return Unauthorized(new { message = "Invalid email or password" });

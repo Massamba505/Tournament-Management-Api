@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Tournament.Management.API.Models;
+using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Services.Interfaces;
 
 namespace Tournament.Management.API.Services.Implementations

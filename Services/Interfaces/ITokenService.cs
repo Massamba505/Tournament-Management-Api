@@ -1,4 +1,4 @@
-using Tournament.Management.API.Models;
+using Tournament.Management.API.Models.Domain;
 
 namespace Tournament.Management.API.Services.Interfaces
 {

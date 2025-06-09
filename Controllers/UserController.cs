@@ -16,15 +16,16 @@ namespace Tournament.Management.API.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out var id))
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid userId))
             {
                 return Unauthorized(new { message = "Invalid token." });
             }
 
             try
             {
-                var user = await _userService.GetUserByIdAsync(id);
+                var user = await _userService.GetUserByIdAsync(userId);
                 if (user == null)
                 {
                     return NotFound(new { message = "User not found." });
@@ -36,7 +37,8 @@ namespace Tournament.Management.API.Controllers
                     Name: user.Name,
                     Surname: user.Surname,
                     Email: user.Email,
-                    RoleId: user.RoleId);
+                    ProfilePicture:user.ProfilePicture, 
+                    Role: user.Role.Name);
 
                 return Ok(userDto);
             }

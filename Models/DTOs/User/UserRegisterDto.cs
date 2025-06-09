@@ -2,27 +2,26 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Tournament.Management.API.Models.DTOs.User;
 
-public record UserDto(
-    Guid Id,
-
+public record UserRegisterDto(
     [Required]
-    [StringLength(50)]
+    [MaxLength(50)]
     string Name,
 
     [Required]
-    [StringLength(50)]
+    [MaxLength(50)]
     string Surname,
 
     [Required]
     [EmailAddress]
-    [StringLength(100)]
+    [MaxLength(100)]
     string Email,
 
     [Required]
-    [StringLength(100)]
-    string ProfilePicture,
+    [MinLength(6)]
+    string Password,
+
+    string? ProfilePicture,
 
     [Required]
-    [StringLength(50)]
-    string Role
+    int RoleId
 );

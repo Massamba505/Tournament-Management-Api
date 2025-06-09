@@ -4,7 +4,7 @@ namespace Tournament.Management.API.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<string?> LoginUserAsync(LoginUserDto userDto);
-        Task<string?> RegisterUserAsync(RegisterUserDto registerUserDto);
+        Task<string?> LoginUserAsync(UserLoginDto userDto);
+        Task<string?> RegisterUserAsync(UserRegisterDto registerUserDto);
     }
 }

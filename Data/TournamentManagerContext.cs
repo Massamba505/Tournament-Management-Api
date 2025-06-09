@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
-using Tournament.Management.API.Models;
 using Tournament.Management.API.Models.Domain;
 
 namespace Tournament.Management.API.Data;
@@ -17,60 +16,104 @@ public partial class TournamentManagerContext : DbContext
     {
     }
 
-    public virtual DbSet<Role> Roles { get; set; }
-
-    public virtual DbSet<User> Users { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:DefaultConnection");
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Member> Members => Set<Member>();
+    public DbSet<Team> Teams => Set<Team>();
+    public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
+    public DbSet<TournamentFormat> TournamentFormats => Set<TournamentFormat>();
+    public DbSet<UserTournament> UserTournaments => Set<UserTournament>();
+    public DbSet<TournamentTeam> TournamentTeams => Set<TournamentTeam>();
+    public DbSet<TeamMatch> TeamMatches => Set<TeamMatch>();
+    public DbSet<PlayerStat> PlayerStats => Set<PlayerStat>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Role>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3214EC07C0A03C4F");
+        base.OnModelCreating(modelBuilder);
 
-            entity.ToTable("Role");
+        modelBuilder.Entity<Role>().HasData(
+            new Role { Id = 1, Name = "General" },
+            new Role { Id = 2, Name = "Organizer" }
+        );
 
-            entity.HasIndex(e => e.Name, "UQ__Role__737584F69C0F15C4").IsUnique();
+        modelBuilder.Entity<TournamentFormat>().HasData(
+            new TournamentFormat { Id = 1, Name = "Single Elimination" },
+            new TournamentFormat { Id = 2, Name = "Double Elimination" },
+            new TournamentFormat { Id = 3, Name = "Round Robin" }
+        );
 
-            entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-        });
+        modelBuilder.Entity<Member>().HasData(
+            new Member { Id = 1, Name = "Player"},
+            new Member { Id = 2, Name = "Manager" }
+        );
 
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__User__3214EC07D7CE27CE");
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Role)
+            .WithMany()
+            .HasForeignKey(u => u.RoleId);
 
-            entity.ToTable("User");
+        modelBuilder.Entity<Team>()
+            .HasOne(t => t.Manager)
+            .WithMany(u => u.ManagedTeams)
+            .HasForeignKey(t => t.ManagerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasIndex(e => e.Email, "UQ__User__A9D10534FDDEC0FC").IsUnique();
+        modelBuilder.Entity<Team>()
+            .HasOne(t => t.Captain)
+            .WithMany(u => u.CaptainedTeams)
+            .HasForeignKey(t => t.CaptainId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.Email)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.PasswordHash)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Surname)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+        modelBuilder.Entity<TeamMember>()
+            .HasOne(tm => tm.User)
+            .WithMany(u => u.TeamMemberships)
+            .HasForeignKey(tm => tm.UserId);
 
-            entity.HasOne(d => d.Role).WithMany(p => p.Users)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__User__RoleId__440B1D61");
-        });
+        modelBuilder.Entity<TeamMember>()
+            .HasOne(tm => tm.Team)
+            .WithMany(t => t.Members)
+            .HasForeignKey(tm => tm.TeamId);
 
-        OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<UserTournament>()
+            .HasOne(t => t.Format)
+            .WithMany()
+            .HasForeignKey(t => t.FormatId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UserTournament>()
+            .HasOne(t => t.Organizer)
+            .WithMany()
+            .HasForeignKey(t => t.OrganizerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TournamentTeam>()
+            .HasIndex(tt => new { tt.TournamentId, tt.TeamId })
+            .IsUnique();
+
+        modelBuilder.Entity<UserTournament>()
+            .Property(ut => ut.EntryFee)
+            .HasPrecision(10, 2);
+
+        modelBuilder.Entity<TeamMatch>()
+            .HasOne(m => m.HomeTeam)
+            .WithMany()
+            .HasForeignKey(m => m.HomeTeamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TeamMatch>()
+            .HasOne(m => m.AwayTeam)
+            .WithMany()
+            .HasForeignKey(m => m.AwayTeamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TeamMatch>()
+            .HasOne(m => m.Tournament)
+            .WithMany()
+            .HasForeignKey(m => m.TournamentId);
+
+        modelBuilder.Entity<PlayerStat>()
+            .HasIndex(ps => new { ps.PlayerId, ps.MatchId })
+            .IsUnique();
     }
 
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
