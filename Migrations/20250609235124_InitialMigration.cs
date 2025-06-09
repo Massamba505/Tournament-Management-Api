@@ -64,8 +64,7 @@ namespace Tournament.Management.API.Migrations
                     ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RoleId1 = table.Column<int>(type: "int", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -76,11 +75,6 @@ namespace Tournament.Management.API.Migrations
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Users_Roles_RoleId1",
-                        column: x => x.RoleId1,
-                        principalTable: "Roles",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -385,11 +379,6 @@ namespace Tournament.Management.API.Migrations
                 name: "IX_Users_RoleId",
                 table: "Users",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_RoleId1",
-                table: "Users",
-                column: "RoleId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserTournaments_FormatId",

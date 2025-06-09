@@ -49,8 +49,9 @@ public partial class TournamentManagerContext : DbContext
 
         modelBuilder.Entity<User>()
             .HasOne(u => u.Role)
-            .WithMany()
-            .HasForeignKey(u => u.RoleId);
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.RoleId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Team>()
             .HasOne(t => t.Manager)

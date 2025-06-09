@@ -12,7 +12,7 @@ using Tournament.Management.API.Data;
 namespace Tournament.Management.API.Migrations
 {
     [DbContext(typeof(TournamentManagerContext))]
-    [Migration("20250609125818_InitialMigration")]
+    [Migration("20250609235124_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -319,9 +319,6 @@ namespace Tournament.Management.API.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("RoleId1")
-                        .HasColumnType("int");
-
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -332,8 +329,6 @@ namespace Tournament.Management.API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("RoleId1");
 
                     b.ToTable("Users");
                 });
@@ -529,14 +524,10 @@ namespace Tournament.Management.API.Migrations
             modelBuilder.Entity("Tournament.Management.API.Models.Domain.User", b =>
                 {
                     b.HasOne("Tournament.Management.API.Models.Domain.Role", "Role")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Tournament.Management.API.Models.Domain.Role", null)
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId1");
 
                     b.Navigation("Role");
                 });
