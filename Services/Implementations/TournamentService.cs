@@ -1,13 +1,15 @@
 ﻿using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.Tournament;
+using Tournament.Management.API.Models.DTOs.TournamentFormat;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
 
 namespace Tournament.Management.API.Services.Implementations
 {
-    public class TournamentService(ITournamentRepository tournamentRepository) : ITournamentService
+    public class TournamentService(ITournamentRepository tournamentRepository, ITournamentFormatService tournamentFormatService) : ITournamentService
     {
         private readonly ITournamentRepository _tournamentRepository = tournamentRepository;
+        private readonly ITournamentFormatService _tournamentFormatService = tournamentFormatService;
 
         public async Task<IEnumerable<TournamentDto>> GetAllAsync()
         {
@@ -122,5 +124,12 @@ namespace Tournament.Management.API.Services.Implementations
             tournamentEntity.isPublic,
             tournamentEntity.CreatedAt
         );
+
+        public async Task<IEnumerable<TournamentFormatDto>> GetFormatsAsync()
+        {
+            var formats = await _tournamentFormatService.GetFormatsAsync();
+
+            return formats;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tournament.Management.API.Models.DTOs.Tournament;
+using Tournament.Management.API.Services.Implementations;
 using Tournament.Management.API.Services.Interfaces;
 
 namespace Tournament.Management.API.Controllers
@@ -80,6 +81,14 @@ namespace Tournament.Management.API.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpGet("formats")]
+        public async Task<IActionResult> GetFormats()
+        {
+            var formats = await _tournamentService.GetFormatsAsync();
+            
+            return Ok(formats);
         }
     }
 }

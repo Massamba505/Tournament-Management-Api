@@ -6,7 +6,7 @@ namespace Tournament.Management.API.Models.DTOs.Tournament
         [Required, StringLength(100)] string Name,
         [Required] string Description,
         [Required] int FormatId,
-        [Range(2, 128)] int NumberOfTeams,
+        [Required, Range(2, 128)] int NumberOfTeams,
         [Range(1, 25)] int MaxPlayersPerTeam,
         [Required] DateTime StartDate,
         [Required] DateTime EndDate,
@@ -17,7 +17,7 @@ namespace Tournament.Management.API.Models.DTOs.Tournament
         [EmailAddress] string? ContactEmail,
         string? ContactPhone,
         [Range(0, 10000)] decimal? EntryFee,
-        [Range(0, 120)] int? MatchDuration,
+        [Required, Range(0, 120)] int MatchDuration,
         [Required] DateTime RegistrationDeadline,
         [Required] bool isPublic
     );

@@ -45,6 +45,7 @@ namespace Tournament.Management.API
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
+            builder.Services.AddScoped<ITournamentFormatRepository, TournamentFormatRepository>();
 
             // Services
             builder.Services.AddScoped<IUserService, UserService>();
@@ -52,6 +53,7 @@ namespace Tournament.Management.API
             builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ITournamentService, TournamentService>();
+            builder.Services.AddScoped<ITournamentFormatService, TournamentFormatService>();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
