@@ -9,19 +9,30 @@ namespace Tournament.Management.API.Services.Implementations
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public async Task<IEnumerable<User>> GettAllUsersAsync()
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
-            return await _userRepository.GetAllUsersAsync();
+            var users = await _userRepository.GetAllUsersAsync();
+            var usersDto = users.Select(user => ToUserDto(user));
+
+            return usersDto;
         }
 
-        public async Task<User?> GetUserByIdAsync(Guid id)
+        public async Task<UserDto?> GetUserByIdAsync(Guid id)
         {
-            return await _userRepository.GetUserByIdAsync(id);
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null)
+                return null;
+
+            return ToUserDto(user);
         }
 
-        public async Task<User?> GetUserByEmailAsync(string email)
+        public async Task<UserDto?> GetUserByEmailAsync(string email)
         {
-            return await _userRepository.GetUserByEmailAsync(email);
+            var user = await _userRepository.GetUserByEmailAsync(email);
+            if (user == null)
+                return null;
+
+            return ToUserDto(user);
         }
 
         public async Task<bool> UpdateUserAsync(Guid userId, UserUpdateDto updatedData)
@@ -30,13 +41,15 @@ namespace Tournament.Management.API.Services.Implementations
             if (user == null)
                 return false;
 
-            user.Name = updatedData.Name?? user.Name;
-            user.Surname = updatedData.Surname ?? user.Surname;
-            user.Email = updatedData.Email ?? user.Email;
+            var isUpdated = ApplyUserUpdates(user, updatedData);
+
+            if (!isUpdated)
+                return false;
 
             await _userRepository.UpdateUserAsync(user);
             return true;
         }
+
 
         public async Task<bool> DeleteUserAsync(Guid id)
         {
@@ -47,5 +60,49 @@ namespace Tournament.Management.API.Services.Implementations
             await _userRepository.DeleteUserAsync(user);
             return true;
         }
+
+        private static UserDto ToUserDto(User user)
+        {
+            return new UserDto(
+                user.Id,
+                user.Name,
+                user.Surname,
+                user.Email,
+                user.ProfilePicture,
+                user.Role.Name
+            );
+        }
+        
+        private bool ApplyUserUpdates(User user, UserUpdateDto updatedData)
+        {
+            bool isUpdated = false;
+
+            if (!string.IsNullOrWhiteSpace(updatedData.Name) && updatedData.Name != user.Name)
+            {
+                user.Name = updatedData.Name;
+                isUpdated = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updatedData.Surname) && updatedData.Surname != user.Surname)
+            {
+                user.Surname = updatedData.Surname;
+                isUpdated = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updatedData.Email) && updatedData.Email != user.Email)
+            {
+                user.Email = updatedData.Email;
+                isUpdated = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updatedData.ProfilePicture) && updatedData.ProfilePicture != user.ProfilePicture)
+            {
+                user.ProfilePicture = updatedData.ProfilePicture;
+                isUpdated = true;
+            }
+
+            return isUpdated;
+        }
+
     }
 }

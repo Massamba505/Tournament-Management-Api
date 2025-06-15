@@ -31,16 +31,7 @@ namespace Tournament.Management.API.Controllers
                     return NotFound(new { message = "User not found." });
                 }
 
-                var userDto = new UserDto
-                (
-                    Id: user.Id,
-                    Name: user.Name,
-                    Surname: user.Surname,
-                    Email: user.Email,
-                    ProfilePicture:user.ProfilePicture, 
-                    Role: user.Role.Name);
-
-                return Ok(userDto);
+                return Ok(user);
             }
             catch (Exception ex)
             {

@@ -11,5 +11,8 @@ public record UserUpdateDto(
     
     [EmailAddress]
     [StringLength(100)]
-    string? Email
+    string? Email,
+
+    [StringLength(100)]
+    string? ProfilePicture
 );
