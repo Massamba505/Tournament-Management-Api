@@ -7,8 +7,8 @@ namespace Tournament.Management.API.Services.Interfaces
     {
         Task<IEnumerable<TournamentDto>> GetAllAsync();
         Task<TournamentDto?> GetByIdAsync(Guid tournamentId);
-        Task<TournamentDto> CreateAsync(CreateTournamentDto tournamentCreateDto);
-        Task<TournamentDto?> UpdateAsync(Guid tournamentId, UpdateTournamentDto tournamentToUpdateDto);
+        Task CreateAsync(CreateTournamentDto tournamentCreateDto);
+        Task<bool> UpdateAsync(Guid tournamentId, UpdateTournamentDto tournamentToUpdateDto);
         Task<bool> DeleteAsync(Guid tournamentId);
         Task<IEnumerable<TournamentFormatDto>> GetFormatsAsync();
     }

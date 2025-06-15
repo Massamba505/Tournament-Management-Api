@@ -28,40 +28,22 @@ namespace Tournament.Management.API.Repository.Implementations
                 .FirstOrDefaultAsync(x => x.Id == tournamentId);
         }
 
-        public async Task<UserTournament> CreateAsync(UserTournament tournament)
+        public async Task CreateAsync(UserTournament tournament)
         {
             _context.UserTournaments.Add(tournament);
             await _context.SaveChangesAsync();
-
-            return tournament;
         }
 
-        public async Task<UserTournament?> UpdateAsync(Guid tournamentId, UserTournament tournament)
+        public async Task UpdateAsync(UserTournament tournament)
         {
-            var existing = await _context.UserTournaments.FindAsync(tournamentId);
-            if (existing == null)
-            {
-                return null;
-            }
-
-            _context.Entry(existing).CurrentValues.SetValues(tournament);
+            _context.UserTournaments.Update(tournament);
             await _context.SaveChangesAsync();
-
-            return existing;
         }
 
-        public async Task<UserTournament?> DeleteAsync(Guid tournamentId)
+        public async Task DeleteAsync(UserTournament tournament)
         {
-            var tournament = await _context.UserTournaments.FindAsync(tournamentId);
-            if (tournament == null)
-            {
-                return null;
-            }
-
             _context.UserTournaments.Remove(tournament);
             await _context.SaveChangesAsync();
-
-            return tournament;
         }
     }
 }

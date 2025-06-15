@@ -6,8 +6,8 @@ namespace Tournament.Management.API.Repository.Interfaces
     {
         Task<IEnumerable<UserTournament>> GetAllAsync();
         Task<UserTournament?> GetByIdAsync(Guid tournamentId);
-        Task<UserTournament> CreateAsync(UserTournament tournament);
-        Task<UserTournament?> UpdateAsync(Guid tournamentId, UserTournament tournament);
-        Task<UserTournament?> DeleteAsync(Guid tournamentId);
+        Task CreateAsync(UserTournament tournament);
+        Task UpdateAsync(UserTournament tournament);
+        Task DeleteAsync(UserTournament tournamentId);
     }
 }

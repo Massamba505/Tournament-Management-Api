@@ -1,4 +1,5 @@
-﻿using Tournament.Management.API.Models.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.Tournament;
 using Tournament.Management.API.Models.DTOs.TournamentFormat;
 using Tournament.Management.API.Repository.Interfaces;
@@ -31,7 +32,7 @@ namespace Tournament.Management.API.Services.Implementations
             return MapToTournamentDto(tournament);
         }
 
-        public async Task<TournamentDto> CreateAsync(CreateTournamentDto tournamentCreateDto)
+        public async Task CreateAsync(CreateTournamentDto tournamentCreateDto)
         {
             var newTournament= new UserTournament
             {
@@ -56,58 +57,44 @@ namespace Tournament.Management.API.Services.Implementations
                 CreatedAt = DateTime.UtcNow
             };
 
-            var createdTournamentEntity = await _tournamentRepository.CreateAsync(newTournament);
-
-            return MapToTournamentDto(createdTournamentEntity);
+            await _tournamentRepository.CreateAsync(newTournament);
         }
 
-        public async Task<TournamentDto?> UpdateAsync(Guid tournamentId, UpdateTournamentDto tournamentToUpdateDto)
+        public async Task<bool> UpdateAsync(Guid tournamentId, UpdateTournamentDto tournamentToUpdateDto)
         {
-            var tournamentToUpdate = new UserTournament
+            var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
+            if (tournament == null)
             {
-                Id = tournamentId,
-                Name = tournamentToUpdateDto.Name,
-                Description = tournamentToUpdateDto.Description,
-                FormatId = tournamentToUpdateDto.FormatId,
-                NumberOfTeams = tournamentToUpdateDto.NumberOfTeams,
-                MaxPlayersPerTeam = tournamentToUpdateDto.MaxPlayersPerTeam,
-                StartDate = tournamentToUpdateDto.StartDate,
-                EndDate = tournamentToUpdateDto.EndDate,
-                Location = tournamentToUpdateDto.Location,
-                AllowJoinViaLink = tournamentToUpdateDto.AllowJoinViaLink,
-                OrganizerId = tournamentToUpdateDto.OrganizerId,
-                BannerImage = tournamentToUpdateDto.BannerImage,
-                ContactEmail = tournamentToUpdateDto.ContactEmail,
-                ContactPhone = tournamentToUpdateDto.ContactPhone,
-                EntryFee = tournamentToUpdateDto.EntryFee,
-                MatchDuration = tournamentToUpdateDto.MatchDuration,
-                RegistrationDeadline = tournamentToUpdateDto.RegistrationDeadline,
-                isPublic = tournamentToUpdateDto.isPublic,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            var updatedTournament= await _tournamentRepository.UpdateAsync(tournamentId, tournamentToUpdate);
-
-            if (updatedTournament == null)
-            {
-                return null;
+                return false;
             }
 
-            return MapToTournamentDto(updatedTournament);
+            var isUpdated = ApplyTournamentUpdates(tournament, tournamentToUpdateDto);
+            if (!isUpdated)
+            {
+                return false;
+            }
+
+            await _tournamentRepository.UpdateAsync(tournament);
+            return true;
         }
 
         public async Task<bool> DeleteAsync(Guid tournamentId)
         {
-            var deletedTournamentEntity = await _tournamentRepository.DeleteAsync(tournamentId);
+            var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
+            if (tournament == null)
+            {
+                return false;
+            }
 
-            return deletedTournamentEntity != null;
+            await _tournamentRepository.DeleteAsync(tournament);
+            return true;
         }
 
         private static TournamentDto MapToTournamentDto(UserTournament tournamentEntity) => new(
             tournamentEntity.Id,
             tournamentEntity.Name,
             tournamentEntity.Description,
-            tournamentEntity.FormatId,
+            Format:tournamentEntity.Format.Name,
             tournamentEntity.NumberOfTeams,
             tournamentEntity.MaxPlayersPerTeam,
             tournamentEntity.StartDate,
@@ -131,5 +118,109 @@ namespace Tournament.Management.API.Services.Implementations
 
             return formats;
         }
+
+        private bool ApplyTournamentUpdates(UserTournament tournament, UpdateTournamentDto updated)
+        {
+            bool isUpdated = false;
+
+            if (updated.Name != tournament.Name)
+            {
+                tournament.Name = updated.Name;
+                isUpdated = true;
+            }
+
+            if (updated.Description != tournament.Description)
+            {
+                tournament.Description = updated.Description;
+                isUpdated = true;
+            }
+
+            if (updated.FormatId != tournament.FormatId)
+            {
+                tournament.FormatId = updated.FormatId;
+                isUpdated = true;
+            }
+
+            if (updated.NumberOfTeams != tournament.NumberOfTeams)
+            {
+                tournament.NumberOfTeams = updated.NumberOfTeams;
+                isUpdated = true;
+            }
+
+            if (updated.MaxPlayersPerTeam != tournament.MaxPlayersPerTeam)
+            {
+                tournament.MaxPlayersPerTeam = updated.MaxPlayersPerTeam;
+                isUpdated = true;
+            }
+
+            if (updated.StartDate != tournament.StartDate)
+            {
+                tournament.StartDate = updated.StartDate;
+                isUpdated = true;
+            }
+
+            if (updated.EndDate != tournament.EndDate)
+            {
+                tournament.EndDate = updated.EndDate;
+                isUpdated = true;
+            }
+
+            if (updated.Location != tournament.Location)
+            {
+                tournament.Location = updated.Location;
+                isUpdated = true;
+            }
+
+            if (updated.AllowJoinViaLink != tournament.AllowJoinViaLink)
+            {
+                tournament.AllowJoinViaLink = updated.AllowJoinViaLink;
+                isUpdated = true;
+            }
+
+            if (updated.BannerImage != tournament.BannerImage)
+            {
+                tournament.BannerImage = updated.BannerImage;
+                isUpdated = true;
+            }
+
+            if (updated.ContactEmail != tournament.ContactEmail)
+            {
+                tournament.ContactEmail = updated.ContactEmail;
+                isUpdated = true;
+            }
+
+            if (updated.ContactPhone != tournament.ContactPhone)
+            {
+                tournament.ContactPhone = updated.ContactPhone;
+                isUpdated = true;
+            }
+
+            if (updated.EntryFee != tournament.EntryFee)
+            {
+                tournament.EntryFee = updated.EntryFee;
+                isUpdated = true;
+            }
+
+            if (updated.MatchDuration != tournament.MatchDuration)
+            {
+                tournament.MatchDuration = updated.MatchDuration;
+                isUpdated = true;
+            }
+
+            if (updated.RegistrationDeadline != tournament.RegistrationDeadline)
+            {
+                tournament.RegistrationDeadline = updated.RegistrationDeadline;
+                isUpdated = true;
+            }
+
+            if (updated.IsPublic != tournament.isPublic)
+            {
+                tournament.isPublic = updated.IsPublic;
+                isUpdated = true;
+            }
+
+            return isUpdated;
+        }
+
     }
 }

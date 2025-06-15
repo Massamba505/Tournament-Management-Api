@@ -4,7 +4,7 @@
         Guid TournamentId,
         string Name,
         string Description,
-        int FormatId,
+        string Format,
         int NumberOfTeams,
         int MaxPlayersPerTeam,
         DateTime StartDate,
