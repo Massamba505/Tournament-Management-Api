@@ -4,12 +4,12 @@ namespace Tournament.Management.API.Repository.Interfaces
 {
     public interface ITeamRepository
     {
-        Task<IEnumerable<Team>> GetMyTeamsAsync(Guid userId);
-        Task<Team?> GetByIdAsync(Guid id, Guid userId);
-        Task CreateAsync(Team team);
-        Task UpdateAsync(Team team);
-        Task DeleteAsync(Team team);
-        Task DeactivateAsync(Team team);
-        Task ActivateAsync(Team team);
+        Task<IEnumerable<Team>> GetTeamsByUserIdAsync(Guid userId);
+        Task<Team?> GetTeamByIdAsync(Guid id);
+        Task CreateTeamAsync(Team team);
+        Task UpdateTeamAsync(Team team);
+        Task DeleteTeamAsync(Team team);
+        Task DeactivateTeamAsync(Team team);
+        Task ActivateTeamAsync(Team team);
     }
 }

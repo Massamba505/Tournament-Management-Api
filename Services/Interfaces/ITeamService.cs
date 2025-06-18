@@ -5,11 +5,11 @@ namespace Tournament.Management.API.Services.Interfaces
     public interface ITeamService
     {
         Task<IEnumerable<TeamDto>> GetMyTeamsAsync(Guid userId);
-        Task<TeamDto?> GetByIdAsync(Guid id, Guid userId);
-        Task CreateAsync(Guid managerId, TeamCreateDto dto);
-        Task<bool> UpdateAsync(Guid id, TeamUpdateDto dto, Guid userId);
-        Task<bool> DeleteAsync(Guid id, Guid userId);
-        Task<bool> DeactivateAsync(Guid id, Guid userId);
-        Task<bool> ActivateAsync(Guid id, Guid userId);
+        Task<TeamDto?> GetTeamByIdAsync(Guid id);
+        Task CreateTeamAsync(Guid managerId, TeamCreateDto dto);
+        Task<bool> UpdateTeamAsync(Guid id, TeamUpdateDto dto);
+        Task<bool> DeleteTeamAsync(Guid id);
+        Task<bool> DeactivateTeamAsync(Guid id);
+        Task<bool> ActivateTeamAsync(Guid id);
     }
 }

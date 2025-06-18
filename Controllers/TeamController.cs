@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.Team;
 using Tournament.Management.API.Services.Interfaces;
 
@@ -8,7 +9,7 @@ namespace Tournament.Management.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TeamController(ITeamService teamService) : ControllerBase
+    public class TeamsController(ITeamService teamService) : ControllerBase
     {
         private readonly ITeamService _teamService = teamService;
 
@@ -18,20 +19,19 @@ namespace Tournament.Management.API.Controllers
         {
             var userId = GetUserId();
             var teams = await _teamService.GetMyTeamsAsync(userId);
-            return Ok(teams);
+            return Ok(new { data = teams});
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTeam(Guid id)
         {
-            var userId = GetUserId();
-            var team = await _teamService.GetByIdAsync(id, userId);
+            var team = await _teamService.GetTeamByIdAsync(id);
             if (team == null)
             {
-                return NotFound(new { success = false, message = "Team not found" });
+                return NotFound(new { message = "Team not found" });
             }
 
-            return Ok(team);
+            return Ok(new { data = team });
         }
 
         [HttpPost]
@@ -39,65 +39,61 @@ namespace Tournament.Management.API.Controllers
         public async Task<IActionResult> CreateTeam([FromBody] TeamCreateDto teamDto)
         {
             var userId = GetUserId();
-            await _teamService.CreateAsync(userId,teamDto);
+            await _teamService.CreateTeamAsync(userId,teamDto);
 
-            return StatusCode(StatusCodes.Status201Created,new { message = "Team Created"});
+            return StatusCode(StatusCodes.Status201Created, new { message = "Team Created"});
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "General")]
-        public async Task<IActionResult> UpdateTeam(Guid id, [FromBody] TeamUpdateDto dto)
+        public async Task<IActionResult> UpdateTeam(Guid id, [FromBody] TeamUpdateDto team)
         {
-            var userId = GetUserId();
-            var result = await _teamService.UpdateAsync(id, dto, userId);
+            var result = await _teamService.UpdateTeamAsync(id, team);
             if (!result)
             {
                 return NotFound(new { success = false, message = "Team not updated" });
             }
 
-            return Ok(new { success = true, message = "Team updated" });
+            return Ok(new { message = "Team updated" });
         }
 
         [HttpPatch("{id}/deactivate")]
         [Authorize(Roles = "General")]
         public async Task<IActionResult> DeactivateTeam(Guid id)
         {
-            var userId = GetUserId();
-            var result = await _teamService.DeactivateAsync(id, userId);
+            var result = await _teamService.DeactivateTeamAsync(id);
             if (!result)
             {
                 return NotFound(new { success = false, message = "Team not deactivated" });
             }
 
-            return Ok(new { success = true, message = "Team deactivated" });
+            return Ok(new { message = "Team deactivated" });
         }
 
         [HttpPatch("{id}/activate")]
         [Authorize(Roles = "General")]
         public async Task<IActionResult> ActivateTeam(Guid id)
         {
-            var userId = GetUserId();
-            var result = await _teamService.ActivateAsync(id, userId);
+            var result = await _teamService.ActivateTeamAsync(id);
             if (!result)
             {
                 return NotFound(new { success = false, message = "Team not activated" });
             }
 
-            return Ok(new { success = true, message = "Team activated" });
+            return Ok(new { message = "Team activated" });
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "General")]
         public async Task<IActionResult> DeleteTeam(Guid id)
         {
-            var userId = GetUserId();
-            var result = await _teamService.DeleteAsync(id, userId);
+            var result = await _teamService.DeleteTeamAsync(id);
             if (!result)
             {
                 return NotFound(new { success = false, message = "Team not deleted" });
             }
 
-            return Ok(new { success = true, message = "Team deleted" });
+            return Ok(new { message = "Team deleted" });
         }
 
         private Guid GetUserId()
