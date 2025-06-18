@@ -45,5 +45,13 @@ namespace Tournament.Management.API.Repository.Implementations
             _context.UserTournaments.Remove(tournament);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<UserTournament>> GetTournamentByOrganizerAsync(Guid userId)
+        {
+            return await _context.UserTournaments
+                    .Include(x => x.Format)
+                    .Where(x => x.OrganizerId == userId)
+                    .ToListAsync();
+        }
     }
 }

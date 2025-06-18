@@ -222,5 +222,11 @@ namespace Tournament.Management.API.Services.Implementations
             return isUpdated;
         }
 
+        public async Task<IEnumerable<TournamentDto>> GetTournamentByOrganizerAsync(Guid userId)
+        {
+            var myTournament = await _tournamentRepository.GetTournamentByOrganizerAsync(userId);
+
+            return myTournament.Select(tournament => MapToTournamentDto(tournament));
+        }
     }
 }

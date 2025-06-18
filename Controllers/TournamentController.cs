@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Tournament.Management.API.Models.DTOs.Tournament;
 using Tournament.Management.API.Services.Implementations;
 using Tournament.Management.API.Services.Interfaces;
@@ -87,6 +88,14 @@ namespace Tournament.Management.API.Controllers
             var formats = await _tournamentService.GetFormatsAsync();
             
             return Ok(formats);
+        }
+
+        [HttpGet("organizer/{id:guid}")]
+        [Authorize(Roles = "Organizer")]
+        public async Task<IActionResult> GetMyTournament(Guid id)
+        {
+            var myTournaments = await _tournamentService.GetTournamentByOrganizerAsync(id);
+            return Ok(myTournaments);
         }
     }
 }
