@@ -9,19 +9,20 @@ namespace Tournament.Management.API.Services.Implementations
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
-            var users = await _userRepository.GetAllUsersAsync();
-            var usersDto = users.Select(user => ToUserDto(user));
-
+            var users = await _userRepository.GetUsersAsync();
+            var usersDto = users.Select(ToUserDto);
             return usersDto;
         }
 
         public async Task<UserDto?> GetUserByIdAsync(Guid id)
         {
             var user = await _userRepository.GetUserByIdAsync(id);
-            if (user == null)
+            if (user is null)
+            {
                 return null;
+            }
 
             return ToUserDto(user);
         }
@@ -29,8 +30,10 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<UserDto?> GetUserByEmailAsync(string email)
         {
             var user = await _userRepository.GetUserByEmailAsync(email);
-            if (user == null)
+            if (user is null)
+            {
                 return null;
+            }
 
             return ToUserDto(user);
         }
@@ -38,40 +41,42 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<bool> UpdateUserAsync(Guid userId, UserUpdateDto updatedData)
         {
             var user = await _userRepository.GetUserByIdAsync(userId);
-            if (user == null)
+            if (user is null)
+            {
                 return false;
+            }
 
             var isUpdated = ApplyUserUpdates(user, updatedData);
 
             if (!isUpdated)
-                return false;
+            {
+                return true;
+            }
 
             await _userRepository.UpdateUserAsync(user);
             return true;
         }
 
-
         public async Task<bool> DeleteUserAsync(Guid id)
         {
             var user = await _userRepository.GetUserByIdAsync(id);
-            if (user == null)
+            if (user is null)
+            {
                 return false;
+            }
 
             await _userRepository.DeleteUserAsync(user);
             return true;
         }
 
-        private static UserDto ToUserDto(User user)
-        {
-            return new UserDto(
+        private UserDto ToUserDto(User user) => new (
                 user.Id,
                 user.Name,
                 user.Surname,
                 user.Email,
                 user.ProfilePicture,
                 user.Role.Name
-            );
-        }
+        );
         
         private bool ApplyUserUpdates(User user, UserUpdateDto updatedData)
         {

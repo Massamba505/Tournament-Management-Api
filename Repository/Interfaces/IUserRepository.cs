@@ -4,7 +4,7 @@ namespace Tournament.Management.API.Repository.Interfaces
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<User>> GetAllUsersAsync();
+        Task<IEnumerable<User>> GetUsersAsync();
         Task<User?> GetUserByIdAsync(Guid id);
         Task<User?> GetUserByEmailAsync(string email);
         Task CreateUserAsync(User user);

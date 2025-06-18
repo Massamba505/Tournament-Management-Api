@@ -9,10 +9,10 @@ namespace Tournament.Management.API.Repository.Implementations
     {
         private readonly TournamentManagerContext _context = context;
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<IEnumerable<User>> GetUsersAsync()
         {
             return await _context.Users
-                .AsNoTracking()
+                .Include(u => u.Role)
                 .ToListAsync();
         }
 

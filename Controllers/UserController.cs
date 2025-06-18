@@ -8,7 +8,7 @@ namespace Tournament.Management.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController(IUserService userService) : ControllerBase
+    public class UsersController(IUserService userService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
 
@@ -23,20 +23,13 @@ namespace Tournament.Management.API.Controllers
                 return Unauthorized(new { message = "Invalid token." });
             }
 
-            try
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user is null)
             {
-                var user = await _userService.GetUserByIdAsync(userId);
-                if (user == null)
-                {
-                    return NotFound(new { message = "User not found." });
-                }
+                return NotFound(new { message = "User not found." });
+            }
 
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred.", error = ex.Message });
-            }
+            return Ok(new {data = user });
         }
     }
 }

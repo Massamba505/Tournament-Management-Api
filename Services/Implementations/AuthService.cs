@@ -39,13 +39,13 @@ namespace Tournament.Management.API.Services.Implementations
             var role = await _roleRepository.GetRoleByIdAsync(registerUserDto.RoleId);
             if (role == null)
             {
-                throw new ArgumentException("Invalid role");
+                return null;
             }
 
             var existingUser = await _userRepository.GetUserByEmailAsync(registerUserDto.Email);
             if (existingUser != null)
             {
-                throw new ArgumentException("Email already in use");
+                return null;
             }
 
             var hashedPassword = _passwordHelper.HashPassword(registerUserDto.Password);
@@ -58,11 +58,10 @@ namespace Tournament.Management.API.Services.Implementations
                 PasswordHash = hashedPassword,
                 RoleId = role.Id,
                 ProfilePicture = $"https://eu.ui-avatars.com/api/?name={registerUserDto.Name}+{registerUserDto.Surname}&size=250",
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
 
             await _userRepository.CreateUserAsync(newUser);
-
             return _tokenService.CreateToken(newUser);
         }
     }
