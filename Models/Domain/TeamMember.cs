@@ -7,7 +7,7 @@
         public Guid TeamId { get; set; }
         public bool IsCaptain { get; set; }
         public int MemberId { get; set; }
-        public DateTime JoinedAt { get; set; }
+        public DateTime JoinedAt { get; set; } = DateTime.Now;
 
         public User User { get; set; } = null!;
         public Team Team { get; set; } = null!;
