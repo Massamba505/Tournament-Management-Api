@@ -12,31 +12,28 @@ namespace Tournament.Management.API.Services.Implementations
         private readonly ITournamentRepository _tournamentRepository = tournamentRepository;
         private readonly ITournamentFormatService _tournamentFormatService = tournamentFormatService;
 
-        public async Task<IEnumerable<TournamentDto>> GetAllAsync()
+        public async Task<IEnumerable<TournamentDto>> GetTournamentsAsync()
         {
-            var tournamentEntities = await _tournamentRepository.GetAllAsync();
-
+            var tournamentEntities = await _tournamentRepository.GetTournamentsAsync();
             return tournamentEntities.Select(MapToTournamentDto);
         }
 
-        public async Task<TournamentDto?> GetByIdAsync(Guid tournamentId)
+        public async Task<TournamentDto?> GetTournamentByIdAsync(Guid tournamentId)
         {
-            var tournament= await _tournamentRepository.GetByIdAsync(tournamentId);
+            var tournament = await _tournamentRepository.GetTournamentByIdAsync(tournamentId);
 
-            if (tournament == null)
+            if (tournament is null)
             {
                 return null;
             }
 
-
             return MapToTournamentDto(tournament);
         }
 
-        public async Task CreateAsync(CreateTournamentDto tournamentCreateDto)
+        public async Task CreateTournamentAsync(CreateTournamentDto tournamentCreateDto)
         {
             var newTournament= new UserTournament
             {
-                Id = Guid.NewGuid(),
                 Name = tournamentCreateDto.Name,
                 Description = tournamentCreateDto.Description,
                 FormatId = tournamentCreateDto.FormatId,
@@ -53,17 +50,17 @@ namespace Tournament.Management.API.Services.Implementations
                 EntryFee = tournamentCreateDto.EntryFee,
                 MatchDuration = tournamentCreateDto.MatchDuration,
                 RegistrationDeadline = tournamentCreateDto.RegistrationDeadline,
-                isPublic = tournamentCreateDto.isPublic,
-                CreatedAt = DateTime.UtcNow
+                isPublic = tournamentCreateDto.IsPublic,
+                CreatedAt = DateTime.Now
             };
 
-            await _tournamentRepository.CreateAsync(newTournament);
+            await _tournamentRepository.CreateTournamentAsync(newTournament);
         }
 
-        public async Task<bool> UpdateAsync(Guid tournamentId, UpdateTournamentDto tournamentToUpdateDto)
+        public async Task<bool> UpdateTournamentAsync(Guid tournamentId, UpdateTournamentDto tournamentToUpdateDto)
         {
-            var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
-            if (tournament == null)
+            var tournament = await _tournamentRepository.GetTournamentByIdAsync(tournamentId);
+            if (tournament is null)
             {
                 return false;
             }
@@ -71,26 +68,26 @@ namespace Tournament.Management.API.Services.Implementations
             var isUpdated = ApplyTournamentUpdates(tournament, tournamentToUpdateDto);
             if (!isUpdated)
             {
-                return false;
+                return true;
             }
 
-            await _tournamentRepository.UpdateAsync(tournament);
+            await _tournamentRepository.UpdateTournamentAsync(tournament);
             return true;
         }
 
-        public async Task<bool> DeleteAsync(Guid tournamentId)
+        public async Task<bool> DeleteTournamentAsync(Guid tournamentId)
         {
-            var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
-            if (tournament == null)
+            var tournament = await _tournamentRepository.GetTournamentByIdAsync(tournamentId);
+            if (tournament is null)
             {
                 return false;
             }
 
-            await _tournamentRepository.DeleteAsync(tournament);
+            await _tournamentRepository.DeleteTournamentAsync(tournament);
             return true;
         }
 
-        private static TournamentDto MapToTournamentDto(UserTournament tournamentEntity) => new(
+        private TournamentDto MapToTournamentDto(UserTournament tournamentEntity) => new(
             tournamentEntity.Id,
             tournamentEntity.Name,
             tournamentEntity.Description,
@@ -112,10 +109,9 @@ namespace Tournament.Management.API.Services.Implementations
             tournamentEntity.CreatedAt
         );
 
-        public async Task<IEnumerable<TournamentFormatDto>> GetFormatsAsync()
+        public async Task<IEnumerable<TournamentFormatDto>> GetTournamentFormatsAsync()
         {
             var formats = await _tournamentFormatService.GetFormatsAsync();
-
             return formats;
         }
 
@@ -222,11 +218,10 @@ namespace Tournament.Management.API.Services.Implementations
             return isUpdated;
         }
 
-        public async Task<IEnumerable<TournamentDto>> GetTournamentByOrganizerAsync(Guid userId)
+        public async Task<IEnumerable<TournamentDto>> GetTournamentByOrganizerIdAsync(Guid userId)
         {
-            var myTournament = await _tournamentRepository.GetTournamentByOrganizerAsync(userId);
-
-            return myTournament.Select(tournament => MapToTournamentDto(tournament));
+            var myTournament = await _tournamentRepository.GetTournamentByOrganizerIdAsync(userId);
+            return myTournament.Select(MapToTournamentDto);
         }
     }
 }

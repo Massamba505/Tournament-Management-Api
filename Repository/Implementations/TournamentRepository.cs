@@ -5,53 +5,48 @@ using Tournament.Management.API.Repository.Interfaces;
 
 namespace Tournament.Management.API.Repository.Implementations
 {
-    public class TournamentRepository : ITournamentRepository
+    public class TournamentRepository(TournamentManagerContext context) : ITournamentRepository
     {
-        private readonly TournamentManagerContext _context;
+        private readonly TournamentManagerContext _context = context;
 
-        public TournamentRepository(TournamentManagerContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<IEnumerable<UserTournament>> GetAllAsync()
+        public async Task<IEnumerable<UserTournament>> GetTournamentsAsync()
         {
             return await _context.UserTournaments
                 .Include(x => x.Format)
                 .ToListAsync();
         }
 
-        public async Task<UserTournament?> GetByIdAsync(Guid tournamentId)
+        public async Task<UserTournament?> GetTournamentByIdAsync(Guid tournamentId)
         {
             return await _context.UserTournaments
                 .Include(x => x.Format)
                 .FirstOrDefaultAsync(x => x.Id == tournamentId);
         }
 
-        public async Task CreateAsync(UserTournament tournament)
+        public async Task CreateTournamentAsync(UserTournament tournament)
         {
             _context.UserTournaments.Add(tournament);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(UserTournament tournament)
+        public async Task UpdateTournamentAsync(UserTournament tournament)
         {
             _context.UserTournaments.Update(tournament);
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(UserTournament tournament)
+        public async Task DeleteTournamentAsync(UserTournament tournament)
         {
             _context.UserTournaments.Remove(tournament);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<UserTournament>> GetTournamentByOrganizerAsync(Guid userId)
+        public async Task<IEnumerable<UserTournament>> GetTournamentByOrganizerIdAsync(Guid userId)
         {
             return await _context.UserTournaments
-                    .Include(x => x.Format)
-                    .Where(x => x.OrganizerId == userId)
-                    .ToListAsync();
+                .Where(x => x.OrganizerId == userId)
+                .Include(x => x.Format)
+                .ToListAsync();
         }
     }
 }

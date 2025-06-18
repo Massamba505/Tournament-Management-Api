@@ -9,19 +9,14 @@ namespace Tournament.Management.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TournamentController : ControllerBase
+    public class TournamentsController(ITournamentService tournamentService) : ControllerBase
     {
-        private readonly ITournamentService _tournamentService;
-
-        public TournamentController(ITournamentService tournamentService)
-        {
-            _tournamentService = tournamentService;
-        }
+        private readonly ITournamentService _tournamentService = tournamentService;
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTournaments()
+        public async Task<IActionResult> GetTournaments()
         {
-            var tournaments = await _tournamentService.GetAllAsync();
+            var tournaments = await _tournamentService.GetTournamentsAsync();
 
             return Ok(new { data = tournaments });
         }
@@ -29,13 +24,13 @@ namespace Tournament.Management.API.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetTournamentById(Guid id)
         {
-            var tournament = await _tournamentService.GetByIdAsync(id);
+            var tournament = await _tournamentService.GetTournamentByIdAsync(id);
             if (tournament is null)
             {
                 return NotFound(new { message = "Tournament not found." });
             }
 
-            return Ok(tournament);
+            return Ok(new { data = tournament });
         }
 
         [HttpPost]
@@ -47,8 +42,8 @@ namespace Tournament.Management.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _tournamentService.CreateAsync(tournament);
-            return StatusCode(StatusCodes.Status201Created, new {message = "Tournament Created."});
+            await _tournamentService.CreateTournamentAsync(tournament);
+            return StatusCode(StatusCodes.Status201Created, new { message = "Tournament Created." });
         }
 
         [HttpPut("{id:guid}")]
@@ -60,7 +55,7 @@ namespace Tournament.Management.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var updated = await _tournamentService.UpdateAsync(id, tournament);
+            var updated = await _tournamentService.UpdateTournamentAsync(id, tournament);
             if (updated == false)
             {
                 return NotFound(new { message = "Tournament not updated." });
@@ -73,7 +68,7 @@ namespace Tournament.Management.API.Controllers
         [Authorize(Roles = "Organizer")]
         public async Task<IActionResult> DeleteTournament(Guid id)
         {
-            var result = await _tournamentService.DeleteAsync(id);
+            var result = await _tournamentService.DeleteTournamentAsync(id);
             if (!result)
             {
                 return NotFound(new { message = "Tournament not deleted." });
@@ -85,17 +80,17 @@ namespace Tournament.Management.API.Controllers
         [HttpGet("formats")]
         public async Task<IActionResult> GetTournamentFormats()
         {
-            var formats = await _tournamentService.GetFormatsAsync();
+            var formats = await _tournamentService.GetTournamentFormatsAsync();
             
-            return Ok(formats);
+            return Ok(new { data = formats});
         }
 
         [HttpGet("organizer/{id:guid}")]
         [Authorize(Roles = "Organizer")]
-        public async Task<IActionResult> GetMyTournament(Guid id)
+        public async Task<IActionResult> GetTournamentByOrganizerId(Guid id)
         {
-            var myTournaments = await _tournamentService.GetTournamentByOrganizerAsync(id);
-            return Ok(myTournaments);
+            var myTournaments = await _tournamentService.GetTournamentByOrganizerIdAsync(id);
+            return Ok(new { data = myTournaments});
         }
     }
 }

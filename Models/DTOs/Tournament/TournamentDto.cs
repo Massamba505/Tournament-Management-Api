@@ -1,7 +1,7 @@
 ﻿namespace Tournament.Management.API.Models.DTOs.Tournament
 {
     public record TournamentDto(
-        Guid TournamentId,
+        Guid Id,
         string Name,
         string Description,
         string Format,
@@ -18,7 +18,7 @@
         decimal? EntryFee,
         int? MatchDuration,
         DateTime RegistrationDeadline,
-        bool isPublic,
+        bool IsPublic,
         DateTime CreatedAt
     );
 }
