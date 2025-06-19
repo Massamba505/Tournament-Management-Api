@@ -12,38 +12,38 @@ namespace Tournament.Management.API.Controllers
         private readonly ITeamMemberService _teamMemberService = teamMemberService;
 
         [HttpGet]
-        public async Task<IActionResult> GetMembers(Guid teamId)
+        public async Task<IActionResult> GetTeamMembers(Guid teamId)
         {
-            var result = await _teamMemberService.GetMembersAsync(teamId);
-            return Ok(result);
+            var teamMembers = await _teamMemberService.GetTeamMembersAsync(teamId);
+            return Ok(new { data = teamMembers });
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddMember(Guid teamId, AddTeamMemberDto dto)
+        public async Task<IActionResult> AddTeamMember(Guid teamId, AddTeamMemberDto teamMember)
         {
-             await _teamMemberService.AddMemberAsync(teamId, dto);
-            return Ok("Player Added sucessfully");
+             await _teamMemberService.AddTeamMemberAsync(teamId, teamMember);
+            return Ok(new {message = "Player Added sucessfully" });
         }
 
         [HttpDelete("{userId:guid}")]
-        public async Task<IActionResult> RemoveMember(Guid teamId, Guid userId)
+        public async Task<IActionResult> RemoveTeamMember(Guid teamId, Guid userId)
         {
-            await _teamMemberService.RemoveMemberAsync(teamId, userId);
-            return Ok("Player removed sucessfully");
+            await _teamMemberService.RemoveTeamMemberAsync(teamId, userId);
+            return Ok(new { message = "Player removed sucessfully" });
         }
 
         [HttpPatch("{userId:guid}/captain/assign")]
-        public async Task<IActionResult> AssignCaptain(Guid teamId, Guid userId)
+        public async Task<IActionResult> AssignTeamCaptain(Guid teamId, Guid userId)
         {
-            await _teamMemberService.AssignCaptainAsync(teamId, userId);
-            return Ok("Player updated sucessfully");
+            await _teamMemberService.AssignTeamCaptainAsync(teamId, userId);
+            return Ok(new { message = "Player updated sucessfully" });
         }
 
         [HttpPatch("{userId:guid}/captain/unassign")]
-        public async Task<IActionResult> UnassignCaptain(Guid teamId, Guid userId)
+        public async Task<IActionResult> UnassignTeamCaptain(Guid teamId, Guid userId)
         {
-            await _teamMemberService.UnassignCaptainAsync(teamId, userId);
-            return Ok("Player updated sucessfully");
+            await _teamMemberService.UnassignTeamCaptainAsync(teamId, userId);
+            return Ok(new { message = "Player updated sucessfully" });
         }
     }
 
