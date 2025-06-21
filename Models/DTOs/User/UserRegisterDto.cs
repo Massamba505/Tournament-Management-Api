@@ -23,5 +23,5 @@ public record UserRegisterDto(
     string? ProfilePicture,
 
     [Required]
-    int RoleId
+    string Role
 );

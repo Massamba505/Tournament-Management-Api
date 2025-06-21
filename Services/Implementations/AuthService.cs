@@ -36,7 +36,7 @@ namespace Tournament.Management.API.Services.Implementations
 
         public async Task<string?> RegisterUserAsync(UserRegisterDto registerUserDto)
         {
-            var role = await _roleRepository.GetRoleByIdAsync(registerUserDto.RoleId);
+            var role = await _roleRepository.GetRoleByNameAsync(registerUserDto.Role);
             if (role == null)
             {
                 return null;

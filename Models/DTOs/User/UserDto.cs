@@ -23,6 +23,5 @@ public record UserDto(
     string ProfilePicture,
 
     [Required]
-    [StringLength(50)]
     string Role
 );
