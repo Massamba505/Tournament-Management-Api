@@ -3,6 +3,9 @@ using Tournament.Management.API.Models.DTOs.Team;
 using Tournament.Management.API.Repository.Implementations;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
+using Tournament.Management.API.Models.DTOs.User;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Tournament.Management.API.Helper;
 
 namespace Tournament.Management.API.Services.Implementations
 {
@@ -13,7 +16,7 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<IEnumerable<TeamDto>> GetMyTeamsAsync(Guid userId)
         {
             var teams = await _teamRepository.GetTeamsByUserIdAsync(userId);
-            return teams.Select(MapToDto);
+            return teams.Select(DtoMapper.MapToTeamDto);
         }
 
         public async Task<TeamDto?> GetTeamByIdAsync(Guid id)
@@ -24,7 +27,7 @@ namespace Tournament.Management.API.Services.Implementations
                 return null;
             }
 
-            return MapToDto(team);
+            return DtoMapper.MapToTeamDto(team);
         }
 
         public async Task CreateTeamAsync(Guid managerId, TeamCreateDto newTeam)
@@ -122,17 +125,6 @@ namespace Tournament.Management.API.Services.Implementations
             return isUpdated;
         }
 
-        private TeamDto MapToDto(Team team)
-        {
-            return new TeamDto(
-                team.Id,
-                team.Name,
-                team.LogoUrl,
-                team.ManagerId,
-                team.CaptainId,
-                team.IsActive
-            );
-        }
     }
 
 }

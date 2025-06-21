@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.TournamentTeam;
 using Tournament.Management.API.Services.Interfaces;
 

@@ -2,22 +2,25 @@
 
 namespace Tournament.Management.API.Models.DTOs.Tournament
 {
-    public record UpdateTournamentDto(
-        [Required] string Name,
-        [Required] string Description,
+    public record UpdateTournamentDto
+    (
+        [Required, MaxLength(100)] string Name,
+        [Required, MaxLength(500)] string Description,
         [Required] int FormatId,
         [Range(2, 100)] int NumberOfTeams,
         [Range(1, 50)] int MaxPlayersPerTeam,
         [Required] DateTime StartDate,
         [Required] DateTime EndDate,
-        [Required] string Location,
+        [Required, MaxLength(200)] string Location,
         bool AllowJoinViaLink,
-        string BannerImage,
+        string? BannerImage,
         [EmailAddress] string? ContactEmail,
-        string? ContactPhone,
+        [Phone] string? ContactPhone,
         [Range(0, double.MaxValue)] decimal? EntryFee,
-        [Range(0, 180)] int? MatchDuration,
+        [Range(1, 180)] int? MatchDuration,
         [Required] DateTime RegistrationDeadline,
         bool IsPublic
     );
+
+
 }

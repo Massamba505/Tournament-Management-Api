@@ -1,4 +1,5 @@
-﻿using Tournament.Management.API.Models.Domain;
+﻿using Tournament.Management.API.Helper;
+using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.TournamentTeam;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
@@ -31,13 +32,13 @@ namespace Tournament.Management.API.Services.Implementations
                 return null;
             }
 
-            return MapToDto(tournamentTeam);
+            return DtoMapper.MapToTournamentTeamDto(tournamentTeam);
         }
 
         public async Task<IEnumerable<TournamentTeamDto>> GetTournamentTeamsByTournamentIdAsync(Guid tournamentId)
         {
             var entities = await _tournamentTeamRepository.GetTournamentTeamsByTournamentIdAsync(tournamentId);
-            return entities.Select(MapToDto);
+            return entities.Select(DtoMapper.MapToTournamentTeamDto);
         }
 
         public async Task<bool> RemoveTournamentTeamAsync(Guid tournamentId, Guid id)
@@ -51,18 +52,5 @@ namespace Tournament.Management.API.Services.Implementations
             await _tournamentTeamRepository.DeleteTournamentTeamAsync(tournamentTeam);
             return true;
         }
-
-        private static TournamentTeamDto MapToDto(TournamentTeam tournamentTeam)
-        {
-            return new(
-                tournamentTeam.Id,
-                tournamentTeam.TeamId,
-                tournamentTeam.Team.Name,
-                tournamentTeam.Team.LogoUrl,
-                tournamentTeam.RegisteredAt,
-                tournamentTeam.IsActive
-            );
-        }
-
     }
 }

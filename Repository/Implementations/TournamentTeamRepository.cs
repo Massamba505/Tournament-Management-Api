@@ -13,14 +13,21 @@ namespace Tournament.Management.API.Repository.Implementations
         {
             return await _context.TournamentTeams
                 .Include(tt => tt.Team)
+                    .ThenInclude(team => team.Manager)
+                .Include(tt => tt.Team)
+                    .ThenInclude(team => team.Captain)
                 .FirstOrDefaultAsync(tt => tt.TeamId == id && tt.TournamentId == tournamentId);
         }
 
         public async Task<IEnumerable<TournamentTeam>> GetTournamentTeamsByTournamentIdAsync(Guid tournamentId)
         {
+
             return await _context.TournamentTeams
                 .Where(tt => tt.TournamentId == tournamentId)
                 .Include(tt => tt.Team)
+                    .ThenInclude(team => team.Manager)
+                .Include(tt => tt.Team)
+                    .ThenInclude(team => team.Captain)
                 .ToListAsync();
         }
 

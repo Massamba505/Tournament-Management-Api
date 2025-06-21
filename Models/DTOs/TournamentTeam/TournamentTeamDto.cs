@@ -1,11 +1,9 @@
-﻿namespace Tournament.Management.API.Models.DTOs.TournamentTeam
+﻿using Tournament.Management.API.Models.DTOs.Team;
+
+namespace Tournament.Management.API.Models.DTOs.TournamentTeam
 {
     public record TournamentTeamDto(
-        Guid Id,
-        Guid TeamId,
-        string TeamName,
-        string TeamLogoUrl,
-        DateTime RegisteredAt,
-        bool IsActive
+        TeamDto Team,
+        DateTime RegisteredAt
     );
 }

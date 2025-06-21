@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Tournament.Management.API.Helper;
 using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.Tournament;
 using Tournament.Management.API.Models.DTOs.TournamentFormat;
@@ -15,7 +16,7 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<IEnumerable<TournamentDto>> GetTournamentsAsync()
         {
             var tournamentEntities = await _tournamentRepository.GetTournamentsAsync();
-            return tournamentEntities.Select(MapToTournamentDto);
+            return tournamentEntities.Select(DtoMapper.MapToTournamentDto);
         }
 
         public async Task<TournamentDto?> GetTournamentByIdAsync(Guid tournamentId)
@@ -27,7 +28,7 @@ namespace Tournament.Management.API.Services.Implementations
                 return null;
             }
 
-            return MapToTournamentDto(tournament);
+            return DtoMapper.MapToTournamentDto(tournament);
         }
 
         public async Task CreateTournamentAsync(CreateTournamentDto tournamentCreateDto)
@@ -86,28 +87,6 @@ namespace Tournament.Management.API.Services.Implementations
             await _tournamentRepository.DeleteTournamentAsync(tournament);
             return true;
         }
-
-        private TournamentDto MapToTournamentDto(UserTournament tournamentEntity) => new(
-            tournamentEntity.Id,
-            tournamentEntity.Name,
-            tournamentEntity.Description,
-            Format:tournamentEntity.Format.Name,
-            tournamentEntity.NumberOfTeams,
-            tournamentEntity.MaxPlayersPerTeam,
-            tournamentEntity.StartDate,
-            tournamentEntity.EndDate,
-            tournamentEntity.Location,
-            tournamentEntity.AllowJoinViaLink,
-            tournamentEntity.OrganizerId,
-            tournamentEntity.BannerImage,
-            tournamentEntity.ContactEmail,
-            tournamentEntity.ContactPhone,
-            tournamentEntity.EntryFee,
-            tournamentEntity.MatchDuration,
-            tournamentEntity.RegistrationDeadline,
-            tournamentEntity.isPublic,
-            tournamentEntity.CreatedAt
-        );
 
         public async Task<IEnumerable<TournamentFormatDto>> GetTournamentFormatsAsync()
         {
@@ -221,7 +200,7 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<IEnumerable<TournamentDto>> GetTournamentByOrganizerIdAsync(Guid userId)
         {
             var myTournament = await _tournamentRepository.GetTournamentByOrganizerIdAsync(userId);
-            return myTournament.Select(MapToTournamentDto);
+            return myTournament.Select(DtoMapper.MapToTournamentDto);
         }
     }
 }
