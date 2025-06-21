@@ -26,6 +26,10 @@ namespace Tournament.Management.API.Controllers
             try
             {
                 var token = await _authService.RegisterUserAsync(userRegisterDto);
+                if(token == null)
+                {
+                    return BadRequest(new {message = "Please select a role" });
+                }
 
                 return Ok(new
                 {
