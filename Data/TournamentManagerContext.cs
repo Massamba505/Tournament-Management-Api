@@ -18,7 +18,7 @@ public partial class TournamentManagerContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
-    public DbSet<UserTournament> Tournaments => Set<UserTournament>();
+    public DbSet<UserTournament> UserTournaments => Set<UserTournament>();
     public DbSet<TournamentTeam> TournamentTeams => Set<TournamentTeam>();
     public DbSet<TeamMatch> TeamMatches => Set<TeamMatch>();
     public DbSet<PlayerStat> PlayerStats => Set<PlayerStat>();

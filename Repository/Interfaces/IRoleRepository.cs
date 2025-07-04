@@ -1,12 +1,11 @@
 using Tournament.Management.API.Models.Enums;
 
-namespace Tournament.Management.API.Repository.Interfaces
+namespace Tournament.Management.API.Repository.Interfaces;
+
+public interface IRoleRepository
 {
-    public interface IRoleRepository
-    {
-        Task<UserRole> GetRoleByNameAsync(string roleName);
-        Task<IEnumerable<UserRole>> GetAllRolesAsync();
-        Task<string> GetRoleNameAsync(UserRole role);
-        Task<bool> IsValidRoleAsync(UserRole role);
-    }
+    Task<UserRole> GetRoleByNameAsync(string roleName);
+    Task<IEnumerable<UserRole>> GetAllRolesAsync();
+    Task<string> GetRoleNameAsync(UserRole role);
+    Task<bool> IsValidRoleAsync(UserRole role);
 }
