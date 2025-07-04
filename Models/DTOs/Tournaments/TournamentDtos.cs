@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using Tournament.Management.API.Models.DTOs.Teams;
-using Tournament.Management.API.Models.DTOs.Users;
+using Tournament.Management.API.Models.DTOs.Common;
+using Tournament.Management.API.Models.DTOs.TeamMatches;
+using Tournament.Management.API.Models.DTOs.TournamentTeams;
 using Tournament.Management.API.Models.Enums;
 
 namespace Tournament.Management.API.Models.DTOs.Tournaments;
@@ -47,6 +48,18 @@ public record TournamentDetailDto(
     bool AllowJoinViaLink,
     int? MatchDuration,
     DateTime CreatedAt
+);
+
+public record TournamentListItemDto(
+    Guid Id,
+    string Name,
+    string Format,
+    DateTime StartDate,
+    DateTime EndDate,
+    string Location,
+    string OrganizerName,
+    string? BannerImage,
+    int TeamCount
 );
 
 public record TournamentCreateDto(
@@ -122,22 +135,4 @@ public record TournamentUpdateDto(
     DateTime? RegistrationDeadline,
     bool? IsPublic,
     TournamentStatus? Status
-);
-
-public record MatchDto(
-    Guid Id,
-    TeamSummaryDto HomeTeam,
-    TeamSummaryDto AwayTeam,
-    int? HomeScore,
-    int? AwayScore,
-    DateTime MatchDate,
-    string Venue,
-    MatchStatus Status
-);
-
-public record TournamentTeamDto(
-    Guid TeamId,
-    string TeamName,
-    string? LogoUrl,
-    DateTime RegisteredAt
 );

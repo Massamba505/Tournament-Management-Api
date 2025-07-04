@@ -1,6 +1,7 @@
 using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.Common;
 using Tournament.Management.API.Models.DTOs.Users;
+using Tournament.Management.API.Models.Enums;
 
 namespace Tournament.Management.API.Helpers.Mapping
 {
@@ -9,48 +10,33 @@ namespace Tournament.Management.API.Helpers.Mapping
         public static UserDto ToDto(this User user)
         {
             return new UserDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Surname = user.Surname,
-                Email = user.Email,
-                ProfilePicture = user.ProfilePicture,
-                Role = user.Role?.Name ?? string.Empty,
-                CreatedAt = user.CreatedAt
-            };
+            (
+                user.Id,
+                user.Name,
+                user.Surname,
+                user.Email,
+                user.ProfilePicture,
+                user.Role,
+                user.CreatedAt
+            );
         }
 
-        public static UserListItemDto ToListItemDto(this User user)
-        {
-            return new UserListItemDto
-            {
-                Id = user.Id,
-                FullName = $"{user.Name} {user.Surname}",
-                ProfilePicture = user.ProfilePicture
-            };
-        }
-
-        public static UserDetailDto ToDetailDto(this User user)
+        public static UserDetailDto ToDetailDto(this User user, IEnumerable<TeamSummaryDto> teams)
         {
             return new UserDetailDto
             (
                 user.Id,
-                $"{user.Name} {user.Surname}",
-                user.ProfilePicture,
+                user.Name,
+                user.Surname,
                 user.Email,
+                user.ProfilePicture,
+                user.Role,
                 user.CreatedAt,
-                user.TeamMemberships?.Select(tm => new UserTeamSummaryDto
-                (
-                    tm.Team.Id,
-                    tm.Team.Name,
-                    tm.Team.LogoUrl,
-                    tm.Team.CaptainId == user.Id,
-                    tm.Team.ManagerId == user.Id
-                )) ?? Array.Empty<UserTeamSummaryDto>()
+                teams
             );
         }
 
-        public static User ToEntity(this UserCreateDto dto)
+        public static User ToEntity(this UserRegisterDto dto)
         {
             return new User
             {
@@ -59,7 +45,8 @@ namespace Tournament.Management.API.Helpers.Mapping
                 Email = dto.Email,
                 PasswordHash = dto.Password, // This should be hashed by the service
                 ProfilePicture = dto.ProfilePicture,
-                RoleId = dto.RoleId,
+                Role = dto.Role,
+                Status = UserStatus.Active,
                 CreatedAt = DateTime.UtcNow
             };
         }

@@ -1,5 +1,7 @@
 using Tournament.Management.API.Models.Domain;
-using Tournament.Management.API.Models.DTOs.Tournaments;
+using Tournament.Management.API.Models.DTOs.Common;
+using Tournament.Management.API.Models.DTOs.TeamMatches;
+using Tournament.Management.API.Models.Enums;
 
 namespace Tournament.Management.API.Helpers.Mapping
 {
@@ -7,28 +9,24 @@ namespace Tournament.Management.API.Helpers.Mapping
     {
         public static MatchDto ToDto(this TeamMatch match)
         {
-            return new MatchDto
-            {
-                Id = match.Id,
-                HomeTeam = new TeamSummaryDto
-                {
-                    Id = match.HomeTeamId,
-                    Name = match.HomeTeam?.Name ?? string.Empty,
-                    LogoUrl = match.HomeTeam?.LogoUrl
-                },
-                AwayTeam = new TeamSummaryDto
-                {
-                    Id = match.AwayTeamId,
-                    Name = match.AwayTeam?.Name ?? string.Empty,
-                    LogoUrl = match.AwayTeam?.LogoUrl
-                },
-                HomeScore = match.HomeScore,
-                AwayScore = match.AwayScore,
-                MatchDate = match.MatchDate,
-                Venue = match.Venue,
-                Status = match.Status,
-                Round = match.Round
-            };
+            return new MatchDto(
+                match.Id,
+                new TeamSummaryDto(
+                    match.HomeTeamId,
+                    match.HomeTeam?.Name ?? string.Empty,
+                    match.HomeTeam?.LogoUrl
+                ),
+                new TeamSummaryDto(
+                    match.AwayTeamId,
+                    match.AwayTeam?.Name ?? string.Empty,
+                    match.AwayTeam?.LogoUrl
+                ),
+                match.HomeScore,
+                match.AwayScore,
+                match.MatchDate,
+                match.Venue,
+                match.Status
+            );
         }
     }
 }

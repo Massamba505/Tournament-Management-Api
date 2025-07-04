@@ -1,5 +1,7 @@
 using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.Common;
+using Tournament.Management.API.Models.DTOs.TeamMatches;
+using Tournament.Management.API.Models.DTOs.TournamentTeams;
 using Tournament.Management.API.Models.DTOs.Tournaments;
 using Tournament.Management.API.Models.Enums;
 
@@ -7,78 +9,81 @@ namespace Tournament.Management.API.Helpers.Mapping
 {
     public static class TournamentMappingExtensions
     {
-        public static TournamentDto ToDto(this Tournament.Management.API.Models.Domain.Tournament tournament)
+        public static TournamentDto ToDto(this UserTournament tournament)
         {
-            return new TournamentDto
-            {
-                Id = tournament.Id,
-                Name = tournament.Name,
-                Description = tournament.Description,
-                Format = tournament.Format.ToString(),
-                NumberOfTeams = tournament.NumberOfTeams,
-                MaxPlayersPerTeam = tournament.MaxPlayersPerTeam,
-                StartDate = tournament.StartDate,
-                EndDate = tournament.EndDate,
-                Location = tournament.Location,
-                Organizer = tournament.Organizer?.ToSummaryDto() ?? new UserSummaryDto(),
-                BannerImage = tournament.BannerImage,
-                ContactEmail = tournament.ContactEmail,
-                ContactPhone = tournament.ContactPhone,
-                EntryFee = tournament.EntryFee,
-                IsPublic = tournament.IsPublic,
-                Status = tournament.Status
-            };
+            return new TournamentDto(
+                tournament.Id,
+                tournament.Name,
+                tournament.Description,
+                tournament.Format.ToString(),
+                tournament.NumberOfTeams,
+                tournament.MaxPlayersPerTeam,
+                tournament.StartDate,
+                tournament.EndDate,
+                tournament.Location,
+                tournament.Organizer != null ? UserSummaryMappingExtensions.ToSummaryDto(tournament.Organizer, MemberType.Manager) :
+                    new UserSummaryDto(Guid.Empty, string.Empty, null, MemberType.Manager),
+                tournament.BannerImage,
+                tournament.ContactEmail,
+                tournament.ContactPhone,
+                tournament.EntryFee,
+                tournament.IsPublic,
+                tournament.Status
+            );
         }
 
-        public static TournamentListItemDto ToListItemDto(this Tournament.Management.API.Models.Domain.Tournament tournament)
+        public static TournamentListItemDto ToListItemDto(this UserTournament tournament)
         {
-            return new TournamentListItemDto
-            {
-                Id = tournament.Id,
-                Name = tournament.Name,
-                Format = tournament.Format.ToString(),
-                StartDate = tournament.StartDate,
-                EndDate = tournament.EndDate,
-                Location = tournament.Location,
-                OrganizerName = tournament.Organizer != null ? $"{tournament.Organizer.Name} {tournament.Organizer.Surname}" : string.Empty,
-                BannerImage = tournament.BannerImage,
-                TeamCount = tournament.TournamentTeams?.Count ?? 0
-            };
+            return new TournamentListItemDto(
+                tournament.Id,
+                tournament.Name,
+                tournament.Format.ToString(),
+                tournament.StartDate,
+                tournament.EndDate,
+                tournament.Location,
+                tournament.Organizer != null ? $"{tournament.Organizer.Name} {tournament.Organizer.Surname}" : string.Empty,
+                tournament.BannerImage,
+                tournament.TournamentTeams?.Count ?? 0
+            );
         }
 
-        public static TournamentDetailDto ToDetailDto(this Tournament.Management.API.Models.Domain.Tournament tournament)
+        public static TournamentDetailDto ToDetailDto(this UserTournament tournament)
         {
-            var dto = new TournamentDetailDto
-            {
-                Id = tournament.Id,
-                Name = tournament.Name,
-                Description = tournament.Description,
-                Format = tournament.Format.ToString(),
-                NumberOfTeams = tournament.NumberOfTeams,
-                MaxPlayersPerTeam = tournament.MaxPlayersPerTeam,
-                StartDate = tournament.StartDate,
-                EndDate = tournament.EndDate,
-                Location = tournament.Location,
-                Organizer = tournament.Organizer?.ToSummaryDto() ?? new UserSummaryDto(),
-                BannerImage = tournament.BannerImage,
-                ContactEmail = tournament.ContactEmail,
-                ContactPhone = tournament.ContactPhone,
-                EntryFee = tournament.EntryFee,
-                IsPublic = tournament.IsPublic,
-                Teams = tournament.TournamentTeams?.Select(tt => TournamentTeamMappingExtensions.ToDto(tt)) ?? Array.Empty<TournamentTeamDto>(),
-                Matches = tournament.Matches?.Select(m => TeamMatchMappingExtensions.ToDto(m)) ?? Array.Empty<MatchDto>(),
-                RegistrationDeadline = tournament.RegistrationDeadline,
-                AllowJoinViaLink = tournament.AllowJoinViaLink,
-                MatchDuration = tournament.MatchDuration,
-                CreatedAt = tournament.CreatedAt
-            };
-            
-            return dto;
+            return new TournamentDetailDto(
+                tournament.Id,
+                tournament.Name,
+                tournament.Description,
+                tournament.Format.ToString(),
+                tournament.NumberOfTeams,
+                tournament.MaxPlayersPerTeam,
+                tournament.StartDate,
+                tournament.EndDate,
+                tournament.Location,
+                tournament.Organizer != null ? UserSummaryMappingExtensions.ToSummaryDto(tournament.Organizer, MemberType.Manager) :
+                    new UserSummaryDto(Guid.Empty, string.Empty, null, MemberType.Manager),
+                tournament.BannerImage,
+                tournament.ContactEmail,
+                tournament.ContactPhone,
+                tournament.EntryFee,
+                tournament.IsPublic,
+                tournament.Status,
+                tournament.TournamentTeams?.Select(tt => new TournamentTeamDto(
+                    tt.TeamId,
+                    tt.Team?.Name ?? string.Empty,
+                    tt.Team?.LogoUrl,
+                    tt.RegisteredAt
+                )) ?? Array.Empty<TournamentTeamDto>(),
+                tournament.Matches?.Select(m => TeamMatchMappingExtensions.ToDto(m)) ?? Array.Empty<MatchDto>(),
+                tournament.RegistrationDeadline,
+                tournament.AllowJoinViaLink,
+                tournament.MatchDuration,
+                tournament.CreatedAt
+            );
         }
 
-        public static Tournament.Management.API.Models.Domain.Tournament ToEntity(this TournamentCreateDto dto)
+        public static UserTournament ToEntity(this TournamentCreateDto dto)
         {
-            return new Tournament.Management.API.Models.Domain.Tournament
+            return new UserTournament
             {
                 Name = dto.Name,
                 Description = dto.Description,
@@ -102,7 +107,7 @@ namespace Tournament.Management.API.Helpers.Mapping
             };
         }
 
-        public static void UpdateFromDto(this Tournament.Management.API.Models.Domain.Tournament tournament, TournamentUpdateDto dto)
+        public static void UpdateFromDto(this UserTournament tournament, TournamentUpdateDto dto)
         {
             if (dto.Name != null)
                 tournament.Name = dto.Name;
@@ -142,6 +147,9 @@ namespace Tournament.Management.API.Helpers.Mapping
                 
             if (dto.IsPublic.HasValue)
                 tournament.IsPublic = dto.IsPublic.Value;
+                
+            if (dto.Status.HasValue)
+                tournament.Status = dto.Status.Value;
         }
     }
 }

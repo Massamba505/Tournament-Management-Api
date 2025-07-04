@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Tournament.Management.API.Models.DTOs.Users;
+using Tournament.Management.API.Models.DTOs.Common;
+using Tournament.Management.API.Models.DTOs.TeamMember;
 using Tournament.Management.API.Models.Enums;
 
 namespace Tournament.Management.API.Models.DTOs.Teams;
@@ -24,12 +25,6 @@ public record TeamDetailDto(
     UserSummaryDto? Captain,
     IEnumerable<TeamMemberDto> Members,
     DateTime CreatedAt
-);
-
-public record TeamSummaryDto(
-    Guid Id,
-    string Name,
-    string? LogoUrl
 );
 
 public record TeamCreateDto(
