@@ -1,4 +1,3 @@
-using Tournament.Management.API.Models.DTOs.Common;
 using Tournament.Management.API.Models.DTOs.Teams;
 
 namespace Tournament.Management.API.Models.DTOs.TournamentTeams;

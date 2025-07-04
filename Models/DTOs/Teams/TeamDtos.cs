@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Tournament.Management.API.Models.DTOs.Common;
-using Tournament.Management.API.Models.DTOs.TeamMember;
+using Tournament.Management.API.Models.DTOs.TeamMembers;
 using Tournament.Management.API.Models.Enums;
 
 namespace Tournament.Management.API.Models.DTOs.Teams;

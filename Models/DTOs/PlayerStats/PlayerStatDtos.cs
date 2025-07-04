@@ -1,4 +1,3 @@
-using Tournament.Management.API.Models.DTOs.Common;
 using Tournament.Management.API.Models.Enums;
 
 namespace Tournament.Management.API.Models.DTOs.PlayerStats;

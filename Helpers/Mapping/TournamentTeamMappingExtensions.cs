@@ -1,31 +1,25 @@
 using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.TournamentTeams;
-using Tournament.Management.API.Models.DTOs.Teams;
-using Tournament.Management.API.Models.Enums;
 
-namespace Tournament.Management.API.Helpers.Mapping
+namespace Tournament.Management.API.Helpers.Mapping;
+
+public static class TournamentTeamMappingExtensions
 {
-    public static class TournamentTeamMappingExtensions
+    public static TournamentTeamDto ToDto(this TournamentTeam team)
     {
-        public static TournamentTeamDto ToDto(this TournamentTeam tournamentTeam)
-        {
-            return new TournamentTeamDto(
-                tournamentTeam.TeamId,
-                tournamentTeam.Team?.Name ?? string.Empty,
-                tournamentTeam.Team?.LogoUrl,
-                tournamentTeam.RegisteredAt
-            );
-        }
-        
-        public static TournamentTeamDetailDto ToDetailDto(this TournamentTeam tournamentTeam)
-        {
-            if (tournamentTeam.Team == null)
-                throw new InvalidOperationException("Cannot create TournamentTeamDetailDto without a Team");
-                
-            return new TournamentTeamDetailDto(
-                TeamMappingExtensions.ToDto(tournamentTeam.Team),
-                tournamentTeam.RegisteredAt
-            );
-        }
+        return new TournamentTeamDto(
+            team.TeamId,
+            team.Team?.Name ?? string.Empty,
+            team.Team?.LogoUrl,
+            team.RegisteredAt
+        );
+    }
+    
+    public static TournamentTeamDetailDto ToDetailDto(this TournamentTeam team)
+    {
+        return new TournamentTeamDetailDto(
+            TeamMappingExtensions.ToDto(team.Team),
+            team.RegisteredAt
+        );
     }
 }

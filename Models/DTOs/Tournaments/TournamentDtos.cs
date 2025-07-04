@@ -50,18 +50,6 @@ public record TournamentDetailDto(
     DateTime CreatedAt
 );
 
-public record TournamentListItemDto(
-    Guid Id,
-    string Name,
-    string Format,
-    DateTime StartDate,
-    DateTime EndDate,
-    string Location,
-    string OrganizerName,
-    string? BannerImage,
-    int TeamCount
-);
-
 public record TournamentCreateDto(
     [Required, StringLength(100)]
     string Name,
