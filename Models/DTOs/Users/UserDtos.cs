@@ -53,7 +53,7 @@ public record UserRegisterDto(
     UserRole Role
 );
 
-public record UserLogin(
+public record UserLoginDto(
     [Required]
     [EmailAddress, StringLength(100)]
     string Email,

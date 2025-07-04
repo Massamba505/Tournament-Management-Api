@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Models.DTOs.TournamentTeams;
 using Tournament.Management.API.Repository.Interfaces;
@@ -21,26 +20,34 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<TournamentTeamDto?> GetTournamentTeamByTeamIdAsync(Guid tournamentId, Guid teamId)
         {
             var tournamentTeam = await _tournamentTeamRepository.GetTournamentTeamByTeamIdAsync(tournamentId, teamId);
-            return tournamentTeam?.ToDto();
+            if(tournamentTeam is null)
+            {
+                return null;
+            }
+
+            return tournamentTeam.ToDto();
         }
 
         public async Task<TournamentTeamDetailDto?> GetTournamentTeamDetailsByTeamIdAsync(Guid tournamentId, Guid teamId)
         {
             var tournamentTeam = await _tournamentTeamRepository.GetTournamentTeamByTeamIdAsync(tournamentId, teamId);
-            return tournamentTeam?.ToDetailDto();
+            if(tournamentTeam is null) { 
+                return null;
+            }
+
+            return tournamentTeam.ToDetailDto();
         }
 
         public async Task AddTournamentTeamAsync(Guid tournamentId, JoinTournamentDto join)
         {
             var team = await _teamRepository.GetTeamByIdAsync(join.TeamId);
-            if (team == null)
+            if (team is null)
             {
                 throw new ArgumentException("Team not found");
             }
 
-            // Check if the team is already in the tournament
             var existingEntry = await _tournamentTeamRepository.GetTournamentTeamByTeamIdAsync(tournamentId, join.TeamId);
-            if (existingEntry != null)
+            if (existingEntry is not null)
             {
                 throw new InvalidOperationException("Team is already registered for this tournament");
             }
@@ -58,7 +65,7 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<bool> RemoveTournamentTeamAsync(Guid tournamentId, Guid teamId)
         {
             var tournamentTeam = await _tournamentTeamRepository.GetTournamentTeamByTeamIdAsync(tournamentId, teamId);
-            if (tournamentTeam == null)
+            if (tournamentTeam is null)
             {
                 return false;
             }

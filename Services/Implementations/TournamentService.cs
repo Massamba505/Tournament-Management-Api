@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Tournament.Management.API.Models.Domain;
-using Tournament.Management.API.Models.DTOs.Tournaments;
+﻿using Tournament.Management.API.Models.DTOs.Tournaments;
 using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
@@ -22,13 +20,23 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<TournamentDto?> GetTournamentByIdAsync(Guid tournamentId)
         {
             var tournament = await _tournamentRepository.GetTournamentByIdAsync(tournamentId);
-            return tournament?.ToDto();
+            if(tournament is null)
+            {
+                return null;
+            }
+
+            return tournament.ToDto();
         }
 
         public async Task<TournamentDetailDto?> GetTournamentDetailsByIdAsync(Guid id)
         {
             var tournament = await _tournamentRepository.GetTournamentByIdAsync(id);
-            return tournament?.ToDetailDto();
+            if (tournament is null)
+            {
+                return null;
+            }
+
+            return tournament.ToDetailDto();
         }
 
         public async Task CreateTournamentAsync(TournamentCreateDto tournamentCreateDto)

@@ -87,10 +87,10 @@ public static class TournamentMappingExtensions
 
     public static void UpdateFromDto(this UserTournament tournament, TournamentUpdateDto dto)
     {
-        if (dto.Name != null)
+        if (dto.Name is not null)
             tournament.Name = dto.Name;
             
-        if (dto.Description != null)
+        if (dto.Description is not null)
             tournament.Description = dto.Description;
             
         if (dto.StartDate.HasValue)
@@ -99,19 +99,19 @@ public static class TournamentMappingExtensions
         if (dto.EndDate.HasValue)
             tournament.EndDate = dto.EndDate.Value;
             
-        if (dto.Location != null)
+        if (dto.Location is not null)
             tournament.Location = dto.Location;
             
         if (dto.AllowJoinViaLink.HasValue)
             tournament.AllowJoinViaLink = dto.AllowJoinViaLink.Value;
             
-        if (dto.BannerImage != null)
+        if (dto.BannerImage is not null)
             tournament.BannerImage = dto.BannerImage;
             
-        if (dto.ContactEmail != null)
+        if (dto.ContactEmail is not null)
             tournament.ContactEmail = dto.ContactEmail;
             
-        if (dto.ContactPhone != null)
+        if (dto.ContactPhone is not null)
             tournament.ContactPhone = dto.ContactPhone;
             
         if (dto.EntryFee.HasValue)

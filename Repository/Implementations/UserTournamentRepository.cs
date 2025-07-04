@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Tournament.Management.API.Data;
 using Tournament.Management.API.Models.Domain;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 
 namespace Tournament.Management.API.Repository.Implementations;
@@ -12,16 +13,27 @@ public class UserTournamentRepository(TournamentManagerContext context) : ITourn
     public async Task<IEnumerable<UserTournament>> GetTournamentsAsync()
     {
         return await _context.UserTournaments
-            .Include(x => x.Format)
+            .Include(t => t.Organizer)
+            .Include(t => t.TournamentTeams)
+                .ThenInclude(tt => tt.Team)
+            .Include(t => t.Matches)
+            .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
     }
 
-    public async Task<UserTournament?> GetTournamentByIdAsync(Guid tournamentId)
+    public async Task<UserTournament?> GetTournamentByIdAsync(Guid id)
     {
         return await _context.UserTournaments
-            .Include(x => x.Organizer)
-            .Include(x => x.Format)
-            .FirstOrDefaultAsync(x => x.Id == tournamentId);
+            .Include(t => t.Organizer)
+            .Include(t => t.TournamentTeams)
+                .ThenInclude(tt => tt.Team)
+            .Include(t => t.Matches)
+                .ThenInclude(m => m.HomeTeam)
+            .Include(t => t.Matches)
+                .ThenInclude(m => m.AwayTeam)
+            .Include(t => t.Matches)
+                .ThenInclude(m => m.PlayerStats)
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task CreateTournamentAsync(UserTournament tournament)
@@ -45,8 +57,24 @@ public class UserTournamentRepository(TournamentManagerContext context) : ITourn
     public async Task<IEnumerable<UserTournament>> GetTournamentByOrganizerIdAsync(Guid userId)
     {
         return await _context.UserTournaments
-            .Where(x => x.OrganizerId == userId)
-            .Include(x => x.Format)
+            .Where(t => t.OrganizerId == userId)
+            .Include(t => t.Organizer)
+            .Include(t => t.TournamentTeams)
+                .ThenInclude(tt => tt.Team)
+            .Include(t => t.Matches)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<UserTournament>> GetTournamentsByStatusAsync(TournamentStatus status)
+    {
+        return await _context.UserTournaments
+            .Where(t => t.Status == status)
+            .Include(t => t.Organizer)
+            .Include(t => t.TournamentTeams)
+                .ThenInclude(tt => tt.Team)
+            .Include(t => t.Matches)
+            .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
     }
 }

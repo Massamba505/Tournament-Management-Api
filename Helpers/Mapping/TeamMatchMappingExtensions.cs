@@ -57,7 +57,7 @@ public static class TeamMatchMappingExtensions
         if (updateDto.HomeScore.HasValue) match.HomeScore = updateDto.HomeScore.Value;
         if (updateDto.AwayScore.HasValue) match.AwayScore = updateDto.AwayScore.Value;
         if (updateDto.MatchDate.HasValue) match.MatchDate = updateDto.MatchDate.Value;
-        if (updateDto.Venue != null) match.Venue = updateDto.Venue;
+        if (updateDto.Venue is not null) match.Venue = updateDto.Venue;
         if (updateDto.Status.HasValue) match.Status = updateDto.Status.Value;
     }
 }

@@ -60,10 +60,10 @@ public static class TeamMappingExtensions
 
     public static void UpdateFromDto(this Team team, TeamUpdateDto dto)
     {
-        if (dto.Name != null)
+        if (dto.Name is not null)
             team.Name = dto.Name;
             
-        if (dto.LogoUrl != null)
+        if (dto.LogoUrl is not null)
             team.LogoUrl = dto.LogoUrl;
             
         if (dto.CaptainId.HasValue)
@@ -92,7 +92,7 @@ public static class TeamMappingExtensions
     {
         return team.Members.Select(m => new TeamMemberDto(
             m.UserId,
-            m.User != null ? $"{m.User.Name} {m.User.Surname}" : string.Empty,
+            $"{m.User.Name} {m.User.Surname}",
             m.MemberType,
             team.CaptainId.HasValue && team.CaptainId.Value == m.UserId,
             m.JoinedAt
