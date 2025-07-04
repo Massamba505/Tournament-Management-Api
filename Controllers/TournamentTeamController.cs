@@ -1,51 +1,64 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Tournament.Management.API.Models.DTOs.TournamentTeam;
+using Tournament.Management.API.Models.DTOs.TournamentTeams;
 using Tournament.Management.API.Services.Interfaces;
 
-namespace Tournament.Management.API.Controllers
+namespace Tournament.Management.API.Controllers;
+
+[Route("api/tournaments/{tournamentId:guid}/teams")]
+[ApiController]
+public class TournamentTeamsController(ITournamentTeamService tournamentTeamService) : ControllerBase
 {
-    [Route("api/tournaments/{tournamentId:guid}/teams")]
-    [ApiController]
-    public class TournamentTeamsController(ITournamentTeamService tournamentTeamService) : ControllerBase
+    private readonly ITournamentTeamService _tournamentTeamService = tournamentTeamService;
+
+    [HttpPost]
+    [Authorize(Roles = "General")]
+    public async Task<IActionResult> JoinTournament(Guid tournamentId, [FromBody] JoinTournamentDto joinTournamentDto)
     {
-        private readonly ITournamentTeamService _tournamentTeamService = tournamentTeamService;
+        await _tournamentTeamService.AddTournamentTeamAsync(tournamentId, joinTournamentDto);
+        return Ok(new {message = "Team joined successfully"});
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> JoinTournament(Guid tournamentId, [FromBody] JoinTournamentDto joinTournamentDto)
+    [HttpGet("{teamId:guid}")]
+    public async Task<IActionResult> GetTournamentTeamByTeamId(Guid tournamentId, Guid teamId)
+    {
+        var team = await _tournamentTeamService.GetTournamentTeamByTeamIdAsync(tournamentId, teamId);
+        if(team is null)
         {
-            await _tournamentTeamService.AddTournamentTeamAsync(tournamentId, joinTournamentDto);
-            return Ok(new {message = "Team joined successfull"});
+            return NotFound(new { message = "Team not found in tournament" });
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetTournamentTeamByTeamId(Guid tournamentId, Guid id)
-        {
-            var team = await _tournamentTeamService.GetTournamentTeamByTeamIdAsync(tournamentId, id);
-            if(team is null)
-            {
-                return NotFound();
-            }
+        return Ok(new { data = team });
+    }
 
-            return Ok(new { data = team });
+    [HttpGet("{teamId:guid}/details")]
+    public async Task<IActionResult> GetTournamentTeamDetailsByTeamId(Guid tournamentId, Guid teamId)
+    {
+        var teamDetails = await _tournamentTeamService.GetTournamentTeamDetailsByTeamIdAsync(tournamentId, teamId);
+        if(teamDetails is null)
+        {
+            return NotFound(new { message = "Team not found in tournament" });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetTeamsByTournament(Guid tournamentId)
-        {
-            var teams = await _tournamentTeamService.GetTournamentTeamsByTournamentIdAsync(tournamentId);
-            return Ok(new { data = teams });
-        }
+        return Ok(new { data = teamDetails });
+    }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveTeamFromTournament(Guid tournamentId, Guid id)
+    [HttpGet]
+    public async Task<IActionResult> GetTeamsByTournament(Guid tournamentId)
+    {
+        var teams = await _tournamentTeamService.GetTournamentTeamsByTournamentIdAsync(tournamentId);
+        return Ok(new { data = teams });
+    }
+
+    [HttpDelete("{teamId:guid}")]
+    [Authorize(Roles = "Organizer,General")]
+    public async Task<IActionResult> RemoveTeamFromTournament(Guid tournamentId, Guid teamId)
+    {
+        var removed = await _tournamentTeamService.RemoveTournamentTeamAsync(tournamentId, teamId);
+        if (!removed)
         {
-            var removed = await _tournamentTeamService.RemoveTournamentTeamAsync(tournamentId, id);
-            if (!removed)
-            {
-                return NotFound();
-            }
-            return Ok(new {message = "Team removed"});
+            return NotFound(new { message = "Team not found in tournament" });
         }
+        return Ok(new {message = "Team removed from tournament"});
     }
 }

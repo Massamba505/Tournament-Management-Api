@@ -18,3 +18,8 @@ public record AddTeamMemberDto(
     [Required]
     Guid TeamId
 );
+
+public record UpdateMemberTypeDto(
+    [Required]
+    MemberType MemberType
+);

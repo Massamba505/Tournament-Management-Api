@@ -1,6 +1,7 @@
 using Tournament.Management.API.Models.DTOs.Common;
 using Tournament.Management.API.Models.DTOs.PlayerStats;
 using Tournament.Management.API.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Tournament.Management.API.Models.DTOs.TeamMatches;
 
@@ -43,4 +44,9 @@ public record MatchUpdateDto(
     DateTime? MatchDate,
     string? Venue,
     MatchStatus? Status
+);
+
+public record UpdateMatchStatusDto(
+    [Required]
+    MatchStatus Status
 );
