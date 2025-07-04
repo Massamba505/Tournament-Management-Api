@@ -1,9 +1,8 @@
 using Tournament.Management.API.Models.Domain;
 
-namespace Tournament.Management.API.Services.Interfaces
+namespace Tournament.Management.API.Services.Interfaces;
+
+public interface ITokenService
 {
-    public interface ITokenService
-    {
-        string CreateToken(User user);
-    }
+    string CreateToken(User user);
 }

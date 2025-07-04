@@ -1,17 +1,17 @@
-﻿using Tournament.Management.API.Models.DTOs.Tournament;
-using Tournament.Management.API.Models.DTOs.TournamentFormat;
+﻿using Tournament.Management.API.Models.DTOs.Tournaments;
+using Tournament.Management.API.Models.Enums;
 
-namespace Tournament.Management.API.Services.Interfaces
+namespace Tournament.Management.API.Services.Interfaces;
+
+public interface ITournamentService
 {
-    public interface ITournamentService
-    {
-        Task<IEnumerable<TournamentDto>> GetTournamentsAsync();
-        Task<TournamentDto?> GetTournamentByIdAsync(Guid Id);
-        Task CreateTournamentAsync(CreateTournamentDto dto);
-        Task<bool> UpdateTournamentAsync(Guid id, UpdateTournamentDto tournament);
-        Task<bool> DeleteTournamentAsync(Guid id);
-        Task<IEnumerable<TournamentDto>> GetTournamentByOrganizerIdAsync(Guid userId);
-        Task<IEnumerable<TournamentFormatDto>> GetTournamentFormatsAsync();
-    }
-
+    Task<IEnumerable<TournamentDto>> GetTournamentsAsync();
+    Task<TournamentDto?> GetTournamentByIdAsync(Guid Id);
+    Task<TournamentDetailDto?> GetTournamentDetailsByIdAsync(Guid id);
+    Task CreateTournamentAsync(TournamentCreateDto dto);
+    Task<bool> UpdateTournamentAsync(Guid id, TournamentUpdateDto tournament);
+    Task<bool> DeleteTournamentAsync(Guid id);
+    Task<IEnumerable<TournamentDto>> GetTournamentsByOrganizerIdAsync(Guid userId);
+    Task<IEnumerable<TournamentDto>> GetTournamentsByStatusAsync(TournamentStatus status);
+    Task<bool> UpdateTournamentStatusAsync(Guid id, TournamentStatus status);
 }

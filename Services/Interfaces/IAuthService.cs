@@ -1,10 +1,9 @@
-using Tournament.Management.API.Models.DTOs.User;
+using Tournament.Management.API.Models.DTOs.Users;
 
-namespace Tournament.Management.API.Services.Interfaces
+namespace Tournament.Management.API.Services.Interfaces;
+
+public interface IAuthService
 {
-    public interface IAuthService
-    {
-        Task<string?> LoginUserAsync(UserLoginDto userDto);
-        Task<string?> RegisterUserAsync(UserRegisterDto registerUserDto);
-    }
+    Task<string?> LoginUserAsync(UserLoginDto userDto);
+    Task<string?> RegisterUserAsync(UserRegisterDto registerUserDto);
 }

@@ -53,10 +53,10 @@ public static class UserMappingExtensions
 
     public static void UpdateFromDto(this User user, UserUpdateDto updateDto)
     {
-        if (updateDto.Name != null) user.Name = updateDto.Name;
-        if (updateDto.Surname != null) user.Surname = updateDto.Surname;
-        if (updateDto.Email != null) user.Email = updateDto.Email;
-        if (updateDto.ProfilePicture != null) user.ProfilePicture = updateDto.ProfilePicture;
+        if (updateDto.Name is not null) user.Name = updateDto.Name;
+        if (updateDto.Surname is not null) user.Surname = updateDto.Surname;
+        if (updateDto.Email is not null) user.Email = updateDto.Email;
+        if (updateDto.ProfilePicture is not null) user.ProfilePicture = updateDto.ProfilePicture;
         user.UpdatedAt = DateTime.UtcNow;
     }
 }
