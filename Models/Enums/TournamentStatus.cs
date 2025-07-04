@@ -1,12 +1,11 @@
-namespace Tournament.Management.API.Models.Enums
+namespace Tournament.Management.API.Models.Enums;
+
+public enum TournamentStatus
 {
-    public enum TournamentStatus
-    {
-        Draft,
-        RegistrationOpen,
-        RegistrationClosed,
-        InProgress,
-        Completed,
-        Cancelled
-    }
+    Draft,
+    RegistrationOpen,
+    RegistrationClosed,
+    InProgress,
+    Completed,
+    Cancelled
 }

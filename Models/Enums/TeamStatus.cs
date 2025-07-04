@@ -1,10 +1,7 @@
-namespace Tournament.Management.API.Models.Enums
+namespace Tournament.Management.API.Models.Enums;
+
+public enum TeamStatus
 {
-    public enum TeamStatus
-    {
-        Active,
-        Inactive,
-        Disbanded,
-        Suspended
-    }
+    Active,
+    Inactive
 }

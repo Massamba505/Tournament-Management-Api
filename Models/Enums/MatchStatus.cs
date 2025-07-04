@@ -1,10 +1,9 @@
-namespace Tournament.Management.API.Models.Enums
+namespace Tournament.Management.API.Models.Enums;
+
+public enum MatchStatus
 {
-    public enum MatchStatus
-    {
-        Scheduled,
-        InProgress,
-        Completed,
-        Cancelled
-    }
+    Scheduled,
+    InProgress,
+    Completed,
+    Cancelled
 }

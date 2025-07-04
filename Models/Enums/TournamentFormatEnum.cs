@@ -1,9 +1,8 @@
-namespace Tournament.Management.API.Models.Enums
+namespace Tournament.Management.API.Models.Enums;
+
+public enum TournamentFormatEnum
 {
-    public enum TournamentFormatEnum
-    {
-        SingleElimination = 1,
-        DoubleElimination = 2,
-        RoundRobin = 3
-    }
+    SingleElimination = 1,
+    DoubleElimination = 2,
+    RoundRobin = 3
 }

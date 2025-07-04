@@ -1,9 +1,7 @@
-namespace Tournament.Management.API.Models.Enums
+namespace Tournament.Management.API.Models.Enums;
+
+public enum UserRole
 {
-    public enum UserRole
-    {
-        General = 1,
-        Organizer = 2,
-        Admin = 3
-    }
+    General = 1,
+    Organizer = 2
 }

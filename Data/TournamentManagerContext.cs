@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Tournament.Management.API.Models.Domain;
 using Tournament.Management.API.Data.Configurations;
 
@@ -19,7 +18,7 @@ public partial class TournamentManagerContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
-    public DbSet<Tournament.Management.API.Models.Domain.Tournament> Tournaments => Set<Tournament.Management.API.Models.Domain.Tournament>();
+    public DbSet<UserTournament> Tournaments => Set<UserTournament>();
     public DbSet<TournamentTeam> TournamentTeams => Set<TournamentTeam>();
     public DbSet<TeamMatch> TeamMatches => Set<TeamMatch>();
     public DbSet<PlayerStat> PlayerStats => Set<PlayerStat>();
@@ -31,7 +30,7 @@ public partial class TournamentManagerContext : DbContext
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new TeamConfiguration());
         modelBuilder.ApplyConfiguration(new TeamMemberConfiguration());
-        modelBuilder.ApplyConfiguration(new TournamentConfiguration());
+        modelBuilder.ApplyConfiguration(new UserTournamentConfiguration());
         modelBuilder.ApplyConfiguration(new TournamentTeamConfiguration());
         modelBuilder.ApplyConfiguration(new TeamMatchConfiguration());
         modelBuilder.ApplyConfiguration(new PlayerStatConfiguration());

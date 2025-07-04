@@ -1,10 +1,8 @@
-namespace Tournament.Management.API.Models.Enums
+namespace Tournament.Management.API.Models.Enums;
+
+public enum UserStatus
 {
-    public enum UserStatus
-    {
-        Active,
-        Inactive,
-        Suspended,
-        PendingVerification
-    }
+    Active,
+    Inactive,
+    PendingVerification
 }

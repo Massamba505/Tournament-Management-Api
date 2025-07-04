@@ -33,21 +33,21 @@ namespace Tournament.Management.API.Helpers.Mapping
         public static UserDetailDto ToDetailDto(this User user)
         {
             return new UserDetailDto
-            {
-                Id = user.Id,
-                FullName = $"{user.Name} {user.Surname}",
-                ProfilePicture = user.ProfilePicture,
-                Email = user.Email,
-                CreatedAt = user.CreatedAt,
-                Teams = user.TeamMemberships?.Select(tm => new UserTeamSummaryDto
-                {
-                    Id = tm.Team.Id,
-                    Name = tm.Team.Name,
-                    LogoUrl = tm.Team.LogoUrl,
-                    IsCaptain = tm.Team.CaptainId == user.Id,
-                    IsManager = tm.Team.ManagerId == user.Id
-                }) ?? Array.Empty<UserTeamSummaryDto>()
-            };
+            (
+                user.Id,
+                $"{user.Name} {user.Surname}",
+                user.ProfilePicture,
+                user.Email,
+                user.CreatedAt,
+                user.TeamMemberships?.Select(tm => new UserTeamSummaryDto
+                (
+                    tm.Team.Id,
+                    tm.Team.Name,
+                    tm.Team.LogoUrl,
+                    tm.Team.CaptainId == user.Id,
+                    tm.Team.ManagerId == user.Id
+                )) ?? Array.Empty<UserTeamSummaryDto>()
+            );
         }
 
         public static User ToEntity(this UserCreateDto dto)
