@@ -1,30 +1,29 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using Tournament.Management.API.Data;
-using Tournament.Management.API.Models.Domain;
-using Tournament.Management.API.Models.DTOs.TournamentFormat;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 
 namespace Tournament.Management.API.Repository.Implementations
 {
-    public class TournamentFormatRepository (TournamentManagerContext context) : ITournamentFormatRepository
+    public class TournamentFormatRepository(TournamentManagerContext context) : ITournamentFormatRepository
     {
         private readonly TournamentManagerContext _context = context;
 
-        public async Task<TournamentFormatDto?> GetByIdAsync(int id)
+        public Task<IEnumerable<TournamentFormatEnum>> GetFormatsAsync()
         {
-            var format =  await _context.TournamentFormats
-                            .FirstOrDefaultAsync(f => f.Id == id);
-            if (format == null)
-            {
-                return null;
-            }
-
-            return new TournamentFormatDto(format.Id, format.Name);
+            return Task.FromResult<IEnumerable<TournamentFormatEnum>>(Enum.GetValues<TournamentFormatEnum>());
         }
 
-        public async Task<IEnumerable<TournamentFormatDto>> GetFormatsAsync()
+        public Task<string> GetFormatNameAsync(TournamentFormatEnum format)
         {
-            return await _context.TournamentFormats.Select(format => new TournamentFormatDto(format.Id, format.Name)).ToListAsync();
+            return Task.FromResult(format.ToString());
+        }
+
+        public Task<bool> IsValidFormatAsync(TournamentFormatEnum format)
+        {
+            bool isValid = Enum.IsDefined(format);
+            return Task.FromResult(isValid);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Tournament.Management.API.Models.Domain;
+using Tournament.Management.API.Models.Enums;
 
 namespace Tournament.Management.API.Repository.Interfaces
 {
@@ -9,7 +10,7 @@ namespace Tournament.Management.API.Repository.Interfaces
         Task CreateTeamAsync(Team team);
         Task UpdateTeamAsync(Team team);
         Task DeleteTeamAsync(Team team);
-        Task DeactivateTeamAsync(Team team);
-        Task ActivateTeamAsync(Team team);
+        Task UpdateTeamStatusAsync(Team team, TeamStatus status);
+        Task<IEnumerable<Team>> GetTeamsByStatusAsync(TeamStatus status);
     }
 }

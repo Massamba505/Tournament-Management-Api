@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tournament.Management.API.Data;
 using Tournament.Management.API.Models.Domain;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 
 namespace Tournament.Management.API.Repository.Implementations
@@ -19,6 +20,8 @@ namespace Tournament.Management.API.Repository.Implementations
         public async Task<Team?> GetTeamByIdAsync(Guid id)
         {
             return await _context.Teams
+                .Include(t => t.Manager)
+                .Include(t => t.Captain)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
@@ -40,16 +43,19 @@ namespace Tournament.Management.API.Repository.Implementations
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeactivateTeamAsync(Team team)
+        public async Task UpdateTeamStatusAsync(Team team, TeamStatus status)
         {
-            team.IsActive = false;
+            team.Status = status;
             await _context.SaveChangesAsync();
         }
 
-        public async Task ActivateTeamAsync(Team team)
+        public async Task<IEnumerable<Team>> GetTeamsByStatusAsync(TeamStatus status)
         {
-            team.IsActive = true;
-            await _context.SaveChangesAsync();
+            return await _context.Teams
+                .Where(t => t.Status == status)
+                .Include(t => t.Manager)
+                .Include(t => t.Captain)
+                .ToListAsync();
         }
     }
 }

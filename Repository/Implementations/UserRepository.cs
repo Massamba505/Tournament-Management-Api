@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Tournament.Management.API.Data;
 using Tournament.Management.API.Models.Domain;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 
 namespace Tournament.Management.API.Repository.Implementations
@@ -12,21 +13,22 @@ namespace Tournament.Management.API.Repository.Implementations
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
             return await _context.Users
-                .Include(u => u.Role)
                 .ToListAsync();
         }
 
         public async Task<User?> GetUserByIdAsync(Guid id)
         {
             return await _context.Users
-                .Include(u => u.Role)
+                .Include(u => u.ManagedTeams)
+                .Include(u => u.CaptainedTeams)
+                .Include(u => u.TeamMemberships)
+                    .ThenInclude(tm => tm.Team)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             return await _context.Users
-                .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Email.Equals(email));
         }
 
