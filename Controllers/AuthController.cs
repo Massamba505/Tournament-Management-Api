@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Tournament.Management.API.Models.DTOs.User;
+using Tournament.Management.API.Models.DTOs.Users;
 using Tournament.Management.API.Services.Interfaces;
 
 namespace Tournament.Management.API.Controllers

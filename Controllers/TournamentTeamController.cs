@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Tournament.Management.API.Models.DTOs.TournamentTeam;
+using Tournament.Management.API.Models.DTOs.TournamentTeams;
 using Tournament.Management.API.Services.Interfaces;
 
 namespace Tournament.Management.API.Controllers
@@ -12,22 +12,35 @@ namespace Tournament.Management.API.Controllers
         private readonly ITournamentTeamService _tournamentTeamService = tournamentTeamService;
 
         [HttpPost]
+        [Authorize(Roles = "General")]
         public async Task<IActionResult> JoinTournament(Guid tournamentId, [FromBody] JoinTournamentDto joinTournamentDto)
         {
             await _tournamentTeamService.AddTournamentTeamAsync(tournamentId, joinTournamentDto);
-            return Ok(new {message = "Team joined successfull"});
+            return Ok(new {message = "Team joined successfully"});
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetTournamentTeamByTeamId(Guid tournamentId, Guid id)
+        [HttpGet("{teamId:guid}")]
+        public async Task<IActionResult> GetTournamentTeamByTeamId(Guid tournamentId, Guid teamId)
         {
-            var team = await _tournamentTeamService.GetTournamentTeamByTeamIdAsync(tournamentId, id);
+            var team = await _tournamentTeamService.GetTournamentTeamByTeamIdAsync(tournamentId, teamId);
             if(team is null)
             {
-                return NotFound();
+                return NotFound(new { message = "Team not found in tournament" });
             }
 
             return Ok(new { data = team });
+        }
+
+        [HttpGet("{teamId:guid}/details")]
+        public async Task<IActionResult> GetTournamentTeamDetailsByTeamId(Guid tournamentId, Guid teamId)
+        {
+            var teamDetails = await _tournamentTeamService.GetTournamentTeamDetailsByTeamIdAsync(tournamentId, teamId);
+            if(teamDetails is null)
+            {
+                return NotFound(new { message = "Team not found in tournament" });
+            }
+
+            return Ok(new { data = teamDetails });
         }
 
         [HttpGet]
@@ -37,15 +50,16 @@ namespace Tournament.Management.API.Controllers
             return Ok(new { data = teams });
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveTeamFromTournament(Guid tournamentId, Guid id)
+        [HttpDelete("{teamId:guid}")]
+        [Authorize(Roles = "Organizer,General")]
+        public async Task<IActionResult> RemoveTeamFromTournament(Guid tournamentId, Guid teamId)
         {
-            var removed = await _tournamentTeamService.RemoveTournamentTeamAsync(tournamentId, id);
+            var removed = await _tournamentTeamService.RemoveTournamentTeamAsync(tournamentId, teamId);
             if (!removed)
             {
-                return NotFound();
+                return NotFound(new { message = "Team not found in tournament" });
             }
-            return Ok(new {message = "Team removed"});
+            return Ok(new {message = "Team removed from tournament"});
         }
     }
 }

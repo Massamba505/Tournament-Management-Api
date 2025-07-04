@@ -124,3 +124,8 @@ public record TournamentUpdateDto(
     bool? IsPublic,
     TournamentStatus? Status
 );
+
+public record UpdateTournamentStatusDto(
+    [Required]
+    TournamentStatus Status
+);

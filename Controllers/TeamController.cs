@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Tournament.Management.API.Models.Domain;
-using Tournament.Management.API.Models.DTOs.Team;
+using Tournament.Management.API.Models.DTOs.Teams;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Services.Interfaces;
 
 namespace Tournament.Management.API.Controllers
@@ -61,7 +62,7 @@ namespace Tournament.Management.API.Controllers
         [Authorize(Roles = "General")]
         public async Task<IActionResult> DeactivateTeam(Guid id)
         {
-            var result = await _teamService.DeactivateTeamAsync(id);
+            var result = await _teamService.UpdateTeamStatusAsync(id, TeamStatus.Inactive);
             if (!result)
             {
                 return NotFound(new { success = false, message = "Team not deactivated" });
@@ -74,7 +75,7 @@ namespace Tournament.Management.API.Controllers
         [Authorize(Roles = "General")]
         public async Task<IActionResult> ActivateTeam(Guid id)
         {
-            var result = await _teamService.ActivateTeamAsync(id);
+            var result = await _teamService.UpdateTeamStatusAsync(id, TeamStatus.Active);
             if (!result)
             {
                 return NotFound(new { success = false, message = "Team not activated" });
