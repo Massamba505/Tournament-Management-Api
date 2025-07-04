@@ -99,5 +99,23 @@ namespace Tournament.Management.API.Services.Implementations
             await _tournamentRepository.UpdateTournamentAsync(tournament);
             return true;
         }
+        
+        public async Task<IEnumerable<TournamentDto>> SearchTournamentsAsync(string searchTerm)
+        {
+            var tournaments = await _tournamentRepository.SearchTournamentsAsync(searchTerm);
+            return tournaments.Select(t => t.ToDto());
+        }
+        
+        public async Task<IEnumerable<TournamentDto>> GetUpcomingTournamentsAsync(int count = 5)
+        {
+            var tournaments = await _tournamentRepository.GetUpcomingTournamentsAsync(count);
+            return tournaments.Select(t => t.ToDto());
+        }
+        
+        public async Task<IEnumerable<TournamentDto>> GetTournamentsByUserParticipationAsync(Guid userId)
+        {
+            var tournaments = await _tournamentRepository.GetTournamentsByUserParticipationAsync(userId);
+            return tournaments.Select(t => t.ToDto());
+        }
     }
 }
