@@ -1,17 +1,21 @@
-﻿namespace Tournament.Management.API.Models.Domain
-{
-    public class Team
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
-        public string LogoUrl { get; set; } = null!;
-        public Guid ManagerId { get; set; }
-        public Guid? CaptainId { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public bool IsActive { get; set; }
+﻿using System.ComponentModel.DataAnnotations;
+using Tournament.Management.API.Models.Enums;
 
-        public User Manager { get; set; } = null!;
-        public User? Captain { get; set; }
-        public ICollection<TeamMember> Members { get; set; } = new List<TeamMember>();
-    }
+namespace Tournament.Management.API.Models.Domain;
+
+public class Team
+{
+    public Guid Id { get; set; }
+    
+    [Required, StringLength(100)]
+    public string Name { get; set; } = string.Empty;
+    public string? LogoUrl { get; set; }
+    public Guid ManagerId { get; set; }
+    public Guid? CaptainId { get; set; }
+    public TeamStatus Status { get; set; } = TeamStatus.Active;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public User Manager { get; set; } = null!;
+    public User? Captain { get; set; }
+    public ICollection<TeamMember> Members { get; set; } = new List<TeamMember>();
 }

@@ -1,26 +1,33 @@
-using Microsoft.EntityFrameworkCore;
-using Tournament.Management.API.Data;
-using Tournament.Management.API.Models.Domain;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 
-namespace Tournament.Management.API.Repository.Implementations
-{
-    public class RoleRepository(TournamentManagerContext context) : IRoleRepository
+namespace Tournament.Management.API.Repository.Implementations;
+
+public class RoleRepository : IRoleRepository
+{        
+    public Task<UserRole> GetRoleByNameAsync(string roleName)
     {
-        private readonly TournamentManagerContext _context = context;
-        public async Task<Role?> GetRoleByNameAsync(string roleName)
+        if (Enum.TryParse<UserRole>(roleName, true, out var role))
         {
-            return await _context.Roles.FirstOrDefaultAsync(r => r.Name.ToLower() == roleName.ToLower());
+            return Task.FromResult(role);
         }
-        public async Task<Role?> GetRoleByIdAsync(int roleId)
-        {
-            return await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
-        }
-        public async Task<IEnumerable<Role>> GetAllRolesAsync()
-        {
-            return await _context.Roles
-                .AsNoTracking()
-                .ToListAsync();
-        }
+        
+        return Task.FromResult(UserRole.General);
+    }
+    
+    public Task<IEnumerable<UserRole>> GetAllRolesAsync()
+    {
+        return Task.FromResult<IEnumerable<UserRole>>(Enum.GetValues<UserRole>());
+    }
+    
+    public Task<string> GetRoleNameAsync(UserRole role)
+    {
+        return Task.FromResult(role.ToString());
+    }
+    
+    public Task<bool> IsValidRoleAsync(UserRole role)
+    {
+        bool isValid = Enum.IsDefined(role);
+        return Task.FromResult(isValid);
     }
 }

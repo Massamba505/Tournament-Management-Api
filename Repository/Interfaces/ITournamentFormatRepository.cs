@@ -1,12 +1,10 @@
-﻿using Tournament.Management.API.Models.Domain;
-using Tournament.Management.API.Models.DTOs.TournamentFormat;
+﻿using Tournament.Management.API.Models.Enums;
 
-namespace Tournament.Management.API.Repository.Interfaces
+namespace Tournament.Management.API.Repository.Interfaces;
+
+public interface ITournamentFormatRepository
 {
-    public interface ITournamentFormatRepository
-    {
-        Task<IEnumerable<TournamentFormatDto>> GetFormatsAsync();
-        Task<TournamentFormatDto?> GetByIdAsync(int id);
-        
-    }
+    Task<IEnumerable<TournamentFormatEnum>> GetFormatsAsync();
+    Task<string> GetFormatNameAsync(TournamentFormatEnum format);
+    Task<bool> IsValidFormatAsync(TournamentFormatEnum format);
 }
