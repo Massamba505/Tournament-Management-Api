@@ -38,5 +38,3 @@ public class UserTournament
     public ICollection<TeamMatch> Matches { get; set; } = new List<TeamMatch>();
     public ICollection<TournamentTeam> TournamentTeams { get; set; } = new List<TournamentTeam>();
 }
-
-}

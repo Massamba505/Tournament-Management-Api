@@ -51,7 +51,7 @@ public static class TournamentMappingExtensions
             tournament.IsPublic,
             tournament.Status,
             tournament.GetTeams(),
-            tournament.GetMatches()
+            tournament.GetMatches(),
             tournament.RegistrationDeadline,
             tournament.AllowJoinViaLink,
             tournament.MatchDuration,

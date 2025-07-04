@@ -11,7 +11,7 @@ public static class TeamMemberMappingExtensions
             member.UserId,
             $"{member.User.Name} {member.User.Surname}",
             member.MemberType,
-            member.Team?.CaptainId == member.UserId,
+            member.Team.CaptainId == member.UserId,
             member.JoinedAt
         );
     }
