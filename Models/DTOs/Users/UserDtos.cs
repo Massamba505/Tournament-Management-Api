@@ -62,3 +62,8 @@ public record UserLoginDto(
     [MinLength(6)]
     string Password
 );
+
+public record UpdateUserStatusDto(
+    [Required]
+    UserStatus Status
+);
