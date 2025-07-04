@@ -1,4 +1,4 @@
-﻿using Tournament.Management.API.Models.DTOs.TournamentFormat;
+﻿using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
 
@@ -8,14 +8,19 @@ namespace Tournament.Management.API.Services.Implementations
     {
         private readonly ITournamentFormatRepository _tournamentFormatRepository = tournamentFormatRepository;
 
-        public async Task<IEnumerable<TournamentFormatDto>> GetFormatsAsync()
+        public async Task<IEnumerable<TournamentFormatEnum>> GetFormatsAsync()
         {
             return await _tournamentFormatRepository.GetFormatsAsync();
         }
 
-        public async Task<TournamentFormatDto?> GetFormatByIdAsync(int id)
+        public async Task<string> GetFormatNameAsync(TournamentFormatEnum format)
         {
-            return await _tournamentFormatRepository.GetByIdAsync(id);
+            return await _tournamentFormatRepository.GetFormatNameAsync(format);
+        }
+
+        public async Task<bool> IsValidFormatAsync(TournamentFormatEnum format)
+        {
+            return await _tournamentFormatRepository.IsValidFormatAsync(format);
         }
     }
 }

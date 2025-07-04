@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tournament.Management.API.Helper;
 using Tournament.Management.API.Models.Domain;
-using Tournament.Management.API.Models.DTOs.Tournament;
-using Tournament.Management.API.Models.DTOs.TournamentFormat;
+using Tournament.Management.API.Models.DTOs.Tournaments;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
+using Tournament.Management.API.Helpers.Mapping;
 
 namespace Tournament.Management.API.Services.Implementations
 {
@@ -16,49 +16,28 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<IEnumerable<TournamentDto>> GetTournamentsAsync()
         {
             var tournamentEntities = await _tournamentRepository.GetTournamentsAsync();
-            return tournamentEntities.Select(DtoMapper.MapToTournamentDto);
+            return tournamentEntities.Select(t => t.ToDto());
         }
 
         public async Task<TournamentDto?> GetTournamentByIdAsync(Guid tournamentId)
         {
             var tournament = await _tournamentRepository.GetTournamentByIdAsync(tournamentId);
-
-            if (tournament is null)
-            {
-                return null;
-            }
-
-            return DtoMapper.MapToTournamentDto(tournament);
+            return tournament?.ToDto();
         }
 
-        public async Task CreateTournamentAsync(CreateTournamentDto tournamentCreateDto)
+        public async Task<TournamentDetailDto?> GetTournamentDetailsByIdAsync(Guid id)
         {
-            var newTournament= new UserTournament
-            {
-                Name = tournamentCreateDto.Name,
-                Description = tournamentCreateDto.Description,
-                FormatId = tournamentCreateDto.FormatId,
-                NumberOfTeams = tournamentCreateDto.NumberOfTeams,
-                MaxPlayersPerTeam = tournamentCreateDto.MaxPlayersPerTeam,
-                StartDate = tournamentCreateDto.StartDate,
-                EndDate = tournamentCreateDto.EndDate,
-                Location = tournamentCreateDto.Location,
-                AllowJoinViaLink = tournamentCreateDto.AllowJoinViaLink,
-                OrganizerId = tournamentCreateDto.OrganizerId,
-                BannerImage = tournamentCreateDto.BannerImage,
-                ContactEmail = tournamentCreateDto.ContactEmail,
-                ContactPhone = tournamentCreateDto.ContactPhone,
-                EntryFee = tournamentCreateDto.EntryFee,
-                MatchDuration = tournamentCreateDto.MatchDuration,
-                RegistrationDeadline = tournamentCreateDto.RegistrationDeadline,
-                isPublic = tournamentCreateDto.IsPublic,
-                CreatedAt = DateTime.Now
-            };
+            var tournament = await _tournamentRepository.GetTournamentByIdAsync(id);
+            return tournament?.ToDetailDto();
+        }
 
+        public async Task CreateTournamentAsync(TournamentCreateDto tournamentCreateDto)
+        {
+            var newTournament = tournamentCreateDto.ToEntity();
             await _tournamentRepository.CreateTournamentAsync(newTournament);
         }
 
-        public async Task<bool> UpdateTournamentAsync(Guid tournamentId, UpdateTournamentDto tournamentToUpdateDto)
+        public async Task<bool> UpdateTournamentAsync(Guid tournamentId, TournamentUpdateDto tournamentUpdateDto)
         {
             var tournament = await _tournamentRepository.GetTournamentByIdAsync(tournamentId);
             if (tournament is null)
@@ -66,12 +45,7 @@ namespace Tournament.Management.API.Services.Implementations
                 return false;
             }
 
-            var isUpdated = ApplyTournamentUpdates(tournament, tournamentToUpdateDto);
-            if (!isUpdated)
-            {
-                return true;
-            }
-
+            tournament.UpdateFromDto(tournamentUpdateDto);
             await _tournamentRepository.UpdateTournamentAsync(tournament);
             return true;
         }
@@ -88,119 +62,34 @@ namespace Tournament.Management.API.Services.Implementations
             return true;
         }
 
-        public async Task<IEnumerable<TournamentFormatDto>> GetTournamentFormatsAsync()
+        public async Task<IEnumerable<TournamentFormatEnum>> GetTournamentFormatsAsync()
         {
-            var formats = await _tournamentFormatService.GetFormatsAsync();
-            return formats;
+            return await _tournamentFormatService.GetFormatsAsync();
         }
 
-        private bool ApplyTournamentUpdates(UserTournament tournament, UpdateTournamentDto updated)
+        public async Task<IEnumerable<TournamentDto>> GetTournamentsByOrganizerIdAsync(Guid userId)
         {
-            bool isUpdated = false;
-
-            if (updated.Name != tournament.Name)
-            {
-                tournament.Name = updated.Name;
-                isUpdated = true;
-            }
-
-            if (updated.Description != tournament.Description)
-            {
-                tournament.Description = updated.Description;
-                isUpdated = true;
-            }
-
-            if (updated.FormatId != tournament.FormatId)
-            {
-                tournament.FormatId = updated.FormatId;
-                isUpdated = true;
-            }
-
-            if (updated.NumberOfTeams != tournament.NumberOfTeams)
-            {
-                tournament.NumberOfTeams = updated.NumberOfTeams;
-                isUpdated = true;
-            }
-
-            if (updated.MaxPlayersPerTeam != tournament.MaxPlayersPerTeam)
-            {
-                tournament.MaxPlayersPerTeam = updated.MaxPlayersPerTeam;
-                isUpdated = true;
-            }
-
-            if (updated.StartDate != tournament.StartDate)
-            {
-                tournament.StartDate = updated.StartDate;
-                isUpdated = true;
-            }
-
-            if (updated.EndDate != tournament.EndDate)
-            {
-                tournament.EndDate = updated.EndDate;
-                isUpdated = true;
-            }
-
-            if (updated.Location != tournament.Location)
-            {
-                tournament.Location = updated.Location;
-                isUpdated = true;
-            }
-
-            if (updated.AllowJoinViaLink != tournament.AllowJoinViaLink)
-            {
-                tournament.AllowJoinViaLink = updated.AllowJoinViaLink;
-                isUpdated = true;
-            }
-
-            if (updated.BannerImage != tournament.BannerImage)
-            {
-                tournament.BannerImage = updated.BannerImage;
-                isUpdated = true;
-            }
-
-            if (updated.ContactEmail != tournament.ContactEmail)
-            {
-                tournament.ContactEmail = updated.ContactEmail;
-                isUpdated = true;
-            }
-
-            if (updated.ContactPhone != tournament.ContactPhone)
-            {
-                tournament.ContactPhone = updated.ContactPhone;
-                isUpdated = true;
-            }
-
-            if (updated.EntryFee != tournament.EntryFee)
-            {
-                tournament.EntryFee = updated.EntryFee;
-                isUpdated = true;
-            }
-
-            if (updated.MatchDuration != tournament.MatchDuration)
-            {
-                tournament.MatchDuration = updated.MatchDuration;
-                isUpdated = true;
-            }
-
-            if (updated.RegistrationDeadline != tournament.RegistrationDeadline)
-            {
-                tournament.RegistrationDeadline = updated.RegistrationDeadline;
-                isUpdated = true;
-            }
-
-            if (updated.IsPublic != tournament.isPublic)
-            {
-                tournament.isPublic = updated.IsPublic;
-                isUpdated = true;
-            }
-
-            return isUpdated;
+            var myTournaments = await _tournamentRepository.GetTournamentByOrganizerIdAsync(userId);
+            return myTournaments.Select(t => t.ToDto());
         }
 
-        public async Task<IEnumerable<TournamentDto>> GetTournamentByOrganizerIdAsync(Guid userId)
+        public async Task<IEnumerable<TournamentDto>> GetTournamentsByStatusAsync(TournamentStatus status)
         {
-            var myTournament = await _tournamentRepository.GetTournamentByOrganizerIdAsync(userId);
-            return myTournament.Select(DtoMapper.MapToTournamentDto);
+            var tournaments = await _tournamentRepository.GetTournamentsByStatusAsync(status);
+            return tournaments.Select(t => t.ToDto());
+        }
+
+        public async Task<bool> UpdateTournamentStatusAsync(Guid id, TournamentStatus status)
+        {
+            var tournament = await _tournamentRepository.GetTournamentByIdAsync(id);
+            if (tournament is null)
+            {
+                return false;
+            }
+
+            tournament.Status = status;
+            await _tournamentRepository.UpdateTournamentAsync(tournament);
+            return true;
         }
     }
 }

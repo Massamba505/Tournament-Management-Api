@@ -1,41 +1,50 @@
 using Tournament.Management.API.Models.Domain;
-using Tournament.Management.API.Models.DTOs.User;
+using Tournament.Management.API.Models.DTOs.Users;
+using Tournament.Management.API.Models.DTOs.Common;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
+using Tournament.Management.API.Helpers.Mapping;
 
 namespace Tournament.Management.API.Services.Implementations
 {
-    public class UserService(IUserRepository userRepository) : IUserService
+    public class UserService(IUserRepository userRepository, ITeamRepository teamRepository) : IUserService
     {
         private readonly IUserRepository _userRepository = userRepository;
+        private readonly ITeamRepository _teamRepository = teamRepository;
 
         public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
             var users = await _userRepository.GetUsersAsync();
-            var usersDto = users.Select(ToUserDto);
-            return usersDto;
+            return users.Select(u => u.ToDto());
         }
 
         public async Task<UserDto?> GetUserByIdAsync(Guid id)
         {
             var user = await _userRepository.GetUserByIdAsync(id);
-            if (user is null)
+            return user?.ToDto();
+        }
+
+        public async Task<UserDetailDto?> GetUserDetailsByIdAsync(Guid id)
+        {
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null)
             {
                 return null;
             }
 
-            return ToUserDto(user);
+            var teams = user.ManagedTeams.Select(t => t.ToSummaryDto())
+                .Concat(user.CaptainedTeams.Select(t => t.ToSummaryDto()))
+                .Concat(user.TeamMemberships.Select(tm => tm.Team.ToSummaryDto()))
+                .Distinct();
+
+            return user.ToDetailDto(teams);
         }
 
         public async Task<UserDto?> GetUserByEmailAsync(string email)
         {
             var user = await _userRepository.GetUserByEmailAsync(email);
-            if (user is null)
-            {
-                return null;
-            }
-
-            return ToUserDto(user);
+            return user?.ToDto();
         }
 
         public async Task<bool> UpdateUserAsync(Guid userId, UserUpdateDto updatedData)
@@ -46,13 +55,7 @@ namespace Tournament.Management.API.Services.Implementations
                 return false;
             }
 
-            var isUpdated = ApplyUserUpdates(user, updatedData);
-
-            if (!isUpdated)
-            {
-                return true;
-            }
-
+            user.UpdateFromDto(updatedData);
             await _userRepository.UpdateUserAsync(user);
             return true;
         }
@@ -69,45 +72,17 @@ namespace Tournament.Management.API.Services.Implementations
             return true;
         }
 
-        private UserDto ToUserDto(User user) => new (
-                user.Id,
-                user.Name,
-                user.Surname,
-                user.Email,
-                user.ProfilePicture,
-                user.Role.Name
-        );
-        
-        private bool ApplyUserUpdates(User user, UserUpdateDto updatedData)
+        public async Task<bool> UpdateUserStatusAsync(Guid userId, UserStatus status)
         {
-            bool isUpdated = false;
-
-            if (!string.IsNullOrWhiteSpace(updatedData.Name) && updatedData.Name != user.Name)
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user is null)
             {
-                user.Name = updatedData.Name;
-                isUpdated = true;
+                return false;
             }
 
-            if (!string.IsNullOrWhiteSpace(updatedData.Surname) && updatedData.Surname != user.Surname)
-            {
-                user.Surname = updatedData.Surname;
-                isUpdated = true;
-            }
-
-            if (!string.IsNullOrWhiteSpace(updatedData.Email) && updatedData.Email != user.Email)
-            {
-                user.Email = updatedData.Email;
-                isUpdated = true;
-            }
-
-            if (!string.IsNullOrWhiteSpace(updatedData.ProfilePicture) && updatedData.ProfilePicture != user.ProfilePicture)
-            {
-                user.ProfilePicture = updatedData.ProfilePicture;
-                isUpdated = true;
-            }
-
-            return isUpdated;
+            user.Status = status;
+            await _userRepository.UpdateUserAsync(user);
+            return true;
         }
-
     }
 }

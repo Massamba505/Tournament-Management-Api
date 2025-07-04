@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tournament.Management.API.Models.Domain;
-using Tournament.Management.API.Models.DTOs.TeamMember;
+using Tournament.Management.API.Models.DTOs.TeamMembers;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
+using Tournament.Management.API.Helpers.Mapping;
 
 namespace Tournament.Management.API.Services.Implementations
 {
@@ -14,18 +16,23 @@ namespace Tournament.Management.API.Services.Implementations
         public async Task<IEnumerable<TeamMemberDto>> GetTeamMembersAsync(Guid teamId)
         {
             var members = await _teamMemberRepository.GetTeamMembersByTeamIdAsync(teamId);
-            return members.Select(MapToDto);
+            return members.Select(m => m.ToDto());
+        }
+
+        public async Task<IEnumerable<TeamMemberDto>> GetTeamMembersByTypeAsync(Guid teamId, MemberType memberType)
+        {
+            var members = await _teamMemberRepository.GetTeamMembersByTypeAsync(teamId, memberType);
+            return members.Select(m => m.ToDto());
         }
 
         public async Task AddTeamMemberAsync(Guid teamId, AddTeamMemberDto newTeamMember)
         {
             var teamMember = new TeamMember
             {
-                Id = Guid.NewGuid(),
                 TeamId = teamId,
                 UserId = newTeamMember.UserId,
-                MemberId = newTeamMember.MemberId,
-                IsCaptain = false
+                MemberType = MemberType.Player,
+                JoinedAt = DateTime.UtcNow
             };
 
             await _teamMemberRepository.AddTeamMemberAsync(teamMember);
@@ -39,21 +46,25 @@ namespace Tournament.Management.API.Services.Implementations
                 return false;
             }
 
+            // If this user is the captain, remove the captain reference from the team
+            var team = await _teamRepository.GetTeamByIdAsync(teamId);
+            if (team != null && team.CaptainId == userId)
+            {
+                team.CaptainId = null;
+                await _teamRepository.UpdateTeamAsync(team);
+            }
+
             await _teamMemberRepository.RemoveTeamMemberAsync(teamMember);
             return true;
         }
 
         public async Task<bool> AssignTeamCaptainAsync(Guid teamId, Guid userId)
         {
-            return await ApplyUpdateToCaptainAsync(teamId, userId, true);
+            // Simply use the UpdateMemberTypeAsync method with MemberType.Captain
+            return await UpdateMemberTypeAsync(teamId, userId, MemberType.Captain);
         }
 
-        public async Task<bool> UnassignTeamCaptainAsync(Guid teamId, Guid userId)
-        {
-            return await ApplyUpdateToCaptainAsync(teamId, userId, false);
-        }
-
-        private async Task<bool> ApplyUpdateToCaptainAsync(Guid teamId, Guid userId, bool status)
+        public async Task<bool> UpdateMemberTypeAsync(Guid teamId, Guid userId, MemberType memberType)
         {
             var teamMember = await _teamMemberRepository.GetTeamMemberByTeamIdAsync(teamId, userId);
             if (teamMember is null)
@@ -61,58 +72,41 @@ namespace Tournament.Management.API.Services.Implementations
                 return false;
             }
 
+            var previousMemberType = teamMember.MemberType;
+            teamMember.MemberType = memberType;
+            await _teamMemberRepository.UpdateTeamMemberAsync(teamMember);
+            
             var team = await _teamRepository.GetTeamByIdAsync(teamId);
             if (team is null)
             {
-                return false;
+                return true; // Member type was updated, but team not found
             }
-
-            if (teamMember.IsCaptain == status)
+            
+            // If changing to Captain, also update the team's captain reference
+            if (memberType == MemberType.Captain)
             {
-                return true;
-            }
-
-
-            if (status)
-            {
-                var teamMembers = await _teamMemberRepository.GetTeamMembersByTeamIdAsync(teamId);
-
-                var currentCaptain = teamMembers.FirstOrDefault(tm => tm.IsCaptain);
-                if (currentCaptain is not null && currentCaptain.UserId != userId)
+                // If there's already a captain, demote them first
+                if (team.CaptainId.HasValue && team.CaptainId.Value != userId)
                 {
-                    currentCaptain.IsCaptain = false;
-                    await _teamMemberRepository.UpdateTeamMemberAsync(currentCaptain);
+                    var currentCaptain = await _teamMemberRepository.GetTeamMemberByTeamIdAsync(teamId, team.CaptainId.Value);
+                    if (currentCaptain != null && currentCaptain.MemberType == MemberType.Captain)
+                    {
+                        currentCaptain.MemberType = MemberType.Player;
+                        await _teamMemberRepository.UpdateTeamMemberAsync(currentCaptain);
+                    }
                 }
-
-                teamMember.IsCaptain = true;
+                
                 team.CaptainId = userId;
+                await _teamRepository.UpdateTeamAsync(team);
             }
-            else
+            // If this user was a captain and is now being changed to something else, remove captain reference
+            else if (previousMemberType == MemberType.Captain && team.CaptainId == userId)
             {
-                teamMember.IsCaptain = false;
-
-                if (team.CaptainId == userId)
-                {
-                    team.CaptainId = null;
-                }
+                team.CaptainId = null;
+                await _teamRepository.UpdateTeamAsync(team);
             }
-
-            await _teamMemberRepository.UpdateTeamMemberAsync(teamMember);
-            await _teamRepository.UpdateTeamAsync(team);
+            
             return true;
         }
-
-        private TeamMemberDto MapToDto(TeamMember teamMemberDto)
-        {
-            return new TeamMemberDto(
-                    teamMemberDto.UserId,
-                    $"{teamMemberDto.User.Name} {teamMemberDto.User.Surname}",
-                    teamMemberDto.User.Email,
-                    teamMemberDto.Member.Name,
-                    teamMemberDto.IsCaptain,
-                    teamMemberDto.JoinedAt
-                );
-        }
     }
-
 }

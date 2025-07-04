@@ -1,47 +1,43 @@
 ﻿using Tournament.Management.API.Models.Domain;
-using Tournament.Management.API.Models.DTOs.Team;
-using Tournament.Management.API.Repository.Implementations;
+using Tournament.Management.API.Models.DTOs.Teams;
+using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Repository.Interfaces;
 using Tournament.Management.API.Services.Interfaces;
-using Tournament.Management.API.Models.DTOs.User;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Tournament.Management.API.Helper;
+using Tournament.Management.API.Helpers.Mapping;
 
 namespace Tournament.Management.API.Services.Implementations
 {
-    public class TeamService(ITeamRepository teamRepository) : ITeamService
+    public class TeamService(ITeamRepository teamRepository, ITeamMemberRepository teamMemberRepository) : ITeamService
     {
         private readonly ITeamRepository _teamRepository = teamRepository;
+        private readonly ITeamMemberRepository _teamMemberRepository = teamMemberRepository;
 
         public async Task<IEnumerable<TeamDto>> GetMyTeamsAsync(Guid userId)
         {
             var teams = await _teamRepository.GetTeamsByUserIdAsync(userId);
-            return teams.Select(DtoMapper.MapToTeamDto);
+            return teams.Select(t => t.ToDto());
         }
 
         public async Task<TeamDto?> GetTeamByIdAsync(Guid id)
         {
             var team = await _teamRepository.GetTeamByIdAsync(id);
-            if(team is null)
+            return team?.ToDto();
+        }
+
+        public async Task<TeamDetailDto?> GetTeamDetailsByIdAsync(Guid id)
+        {
+            var team = await _teamRepository.GetTeamByIdAsync(id);
+            if (team == null)
             {
                 return null;
             }
 
-            return DtoMapper.MapToTeamDto(team);
+            return team.ToDetailDto();
         }
 
         public async Task CreateTeamAsync(Guid managerId, TeamCreateDto newTeam)
         {
-            var team = new Team
-            {
-                Id = Guid.NewGuid(),
-                Name = newTeam.Name,
-                LogoUrl = newTeam.LogoUrl?? $"https://eu.ui-avatars.com/api/?name={newTeam.Name}&size=250",
-                ManagerId = managerId,
-                CreatedAt = DateTime.Now,
-                IsActive = true
-            };
-
+            var team = newTeam.ToEntity(managerId);
             await _teamRepository.CreateTeamAsync(team);
         }
 
@@ -53,13 +49,7 @@ namespace Tournament.Management.API.Services.Implementations
                 return false;
             }
 
-            var isUpdated = ApplyTeamUpdates(existingTeam, team);
-
-            if (!isUpdated)
-            {
-                return true;
-            }
-
+            existingTeam.UpdateFromDto(team);
             await _teamRepository.UpdateTeamAsync(existingTeam);
             return true;
         }
@@ -76,7 +66,7 @@ namespace Tournament.Management.API.Services.Implementations
             return true;
         }
 
-        public async Task<bool> DeactivateTeamAsync(Guid id)
+        public async Task<bool> UpdateTeamStatusAsync(Guid id, TeamStatus status)
         {
             var team = await _teamRepository.GetTeamByIdAsync(id);
             if (team is null)
@@ -84,47 +74,14 @@ namespace Tournament.Management.API.Services.Implementations
                 return false;
             }
 
-            await _teamRepository.DeactivateTeamAsync(team);
+            await _teamRepository.UpdateTeamStatusAsync(team, status);
             return true;
         }
 
-        public async Task<bool> ActivateTeamAsync(Guid id)
+        public async Task<IEnumerable<TeamDto>> GetTeamsByStatusAsync(TeamStatus status)
         {
-            var team = await _teamRepository.GetTeamByIdAsync(id);
-            if (team is null)
-            {
-                return false;
-            }
-
-            await _teamRepository.ActivateTeamAsync(team);
-            return true;
+            var teams = await _teamRepository.GetTeamsByStatusAsync(status);
+            return teams.Select(t => t.ToDto());
         }
-
-        private bool ApplyTeamUpdates(Team existingTeam, TeamUpdateDto team)
-        {
-            bool isUpdated = false;
-
-            if (!string.IsNullOrWhiteSpace(team.Name) && team.Name != existingTeam.Name)
-            {
-                existingTeam.Name = team.Name;
-                isUpdated = true;
-            }
-
-            if (!string.IsNullOrWhiteSpace(team.LogoUrl) && team.LogoUrl != existingTeam.LogoUrl)
-            {
-                existingTeam.LogoUrl = team.LogoUrl;
-                isUpdated = true;
-            }
-
-            if (team.CaptainId != existingTeam.CaptainId)
-            {
-                existingTeam.CaptainId = team.CaptainId;
-                isUpdated = true;
-            }
-
-            return isUpdated;
-        }
-
     }
-
 }
