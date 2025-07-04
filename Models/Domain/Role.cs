@@ -1,10 +1,14 @@
-﻿namespace Tournament.Management.API.Models.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Tournament.Management.API.Models.Domain;
 
 public class Role
 {
     public int Id { get; set; }
-    public string Name { get; set; } = null!;
+    
+    [Required, StringLength(50)]
+    public string Name { get; set; } = string.Empty;
 
+    // Navigation properties
     public ICollection<User> Users { get; set; } = new List<User>();
 }
-

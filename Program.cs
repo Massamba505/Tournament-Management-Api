@@ -20,8 +20,8 @@ namespace Tournament.Management.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
+            
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
@@ -45,7 +45,7 @@ namespace Tournament.Management.API
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
-            builder.Services.AddScoped<ITournamentFormatRepository, TournamentFormatRepository>();
+            // Remove TournamentFormat repository as we're now using an enum
             builder.Services.AddScoped<ITeamRepository, TeamRepository>();
             builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
             builder.Services.AddScoped<ITournamentTeamRepository, TournamentTeamRepository>();
@@ -56,7 +56,7 @@ namespace Tournament.Management.API
             builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ITournamentService, TournamentService>();
-            builder.Services.AddScoped<ITournamentFormatService, TournamentFormatService>();
+            // Remove TournamentFormat service as we're now using an enum
             builder.Services.AddScoped<ITeamService, TeamService>();
             builder.Services.AddScoped<ITeamMemberService, TeamMemberService>();
             builder.Services.AddScoped<ITournamentTeamService, TournamentTeamService>();
