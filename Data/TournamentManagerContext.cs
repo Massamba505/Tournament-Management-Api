@@ -28,7 +28,6 @@ public partial class TournamentManagerContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Apply configurations from separate classes
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new TeamConfiguration());
         modelBuilder.ApplyConfiguration(new TeamMemberConfiguration());
