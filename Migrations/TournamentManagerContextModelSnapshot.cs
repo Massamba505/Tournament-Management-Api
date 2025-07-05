@@ -22,42 +22,13 @@ namespace Tournament.Management.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Tournament.Management.API.Models.Domain.Member", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Members");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Player"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Manager"
-                        });
-                });
-
             modelBuilder.Entity("Tournament.Management.API.Models.Domain.PlayerStat", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Assists")
                         .HasColumnType("int");
@@ -65,11 +36,9 @@ namespace Tournament.Management.API.Migrations
                     b.Property<int>("Goals")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("MatchId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PlayerId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RedCards")
                         .HasColumnType("int");
@@ -77,43 +46,11 @@ namespace Tournament.Management.API.Migrations
                     b.Property<int>("YellowCards")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("PlayerId", "MatchId");
 
                     b.HasIndex("MatchId");
 
-                    b.HasIndex("PlayerId", "MatchId")
-                        .IsUnique();
-
                     b.ToTable("PlayerStats");
-                });
-
-            modelBuilder.Entity("Tournament.Management.API.Models.Domain.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "General"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Organizer"
-                        });
                 });
 
             modelBuilder.Entity("Tournament.Management.API.Models.Domain.Team", b =>
@@ -128,17 +65,18 @@ namespace Tournament.Management.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LogoUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ManagerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -147,6 +85,8 @@ namespace Tournament.Management.API.Migrations
                     b.HasIndex("CaptainId");
 
                     b.HasIndex("ManagerId");
+
+                    b.HasIndex("Name");
 
                     b.ToTable("Teams");
                 });
@@ -172,15 +112,17 @@ namespace Tournament.Management.API.Migrations
                     b.Property<DateTime>("MatchDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("TournamentId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("UserTournamentId")
+                    b.Property<Guid>("TournamentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Venue")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
@@ -190,101 +132,49 @@ namespace Tournament.Management.API.Migrations
 
                     b.HasIndex("TournamentId");
 
-                    b.HasIndex("UserTournamentId");
-
                     b.ToTable("TeamMatches");
                 });
 
             modelBuilder.Entity("Tournament.Management.API.Models.Domain.TeamMember", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsCaptain")
-                        .HasColumnType("bit");
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
+                    b.Property<string>("MemberType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("TeamId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
+                    b.HasKey("UserId", "TeamId");
 
                     b.HasIndex("TeamId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("TeamMembers");
                 });
 
-            modelBuilder.Entity("Tournament.Management.API.Models.Domain.TournamentFormat", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TournamentFormats");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Single Elimination"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Double Elimination"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Round Robin"
-                        });
-                });
-
             modelBuilder.Entity("Tournament.Management.API.Models.Domain.TournamentTeam", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("TournamentId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("RegisteredAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("TeamId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TournamentId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime>("RegisteredAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TournamentId", "TeamId");
 
                     b.HasIndex("TeamId");
-
-                    b.HasIndex("TournamentId", "TeamId")
-                        .IsUnique();
 
                     b.ToTable("TournamentTeams");
                 });
@@ -300,33 +190,41 @@ namespace Tournament.Management.API.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProfilePicture")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Surname")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -341,7 +239,6 @@ namespace Tournament.Management.API.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("BannerImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContactEmail")
@@ -364,12 +261,17 @@ namespace Tournament.Management.API.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<int>("FormatId")
-                        .HasColumnType("int");
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int?>("MatchDuration")
                         .HasColumnType("int");
@@ -379,7 +281,8 @@ namespace Tournament.Management.API.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("NumberOfTeams")
                         .HasColumnType("int");
@@ -393,12 +296,11 @@ namespace Tournament.Management.API.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("isPublic")
-                        .HasColumnType("bit");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FormatId");
 
                     b.HasIndex("OrganizerId");
 
@@ -457,14 +359,10 @@ namespace Tournament.Management.API.Migrations
                         .IsRequired();
 
                     b.HasOne("Tournament.Management.API.Models.Domain.UserTournament", "Tournament")
-                        .WithMany()
+                        .WithMany("Matches")
                         .HasForeignKey("TournamentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Tournament.Management.API.Models.Domain.UserTournament", null)
-                        .WithMany("Matches")
-                        .HasForeignKey("UserTournamentId");
 
                     b.Navigation("AwayTeam");
 
@@ -475,12 +373,6 @@ namespace Tournament.Management.API.Migrations
 
             modelBuilder.Entity("Tournament.Management.API.Models.Domain.TeamMember", b =>
                 {
-                    b.HasOne("Tournament.Management.API.Models.Domain.Member", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Tournament.Management.API.Models.Domain.Team", "Team")
                         .WithMany("Members")
                         .HasForeignKey("TeamId")
@@ -492,8 +384,6 @@ namespace Tournament.Management.API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Member");
 
                     b.Navigation("Team");
 
@@ -519,39 +409,15 @@ namespace Tournament.Management.API.Migrations
                     b.Navigation("Tournament");
                 });
 
-            modelBuilder.Entity("Tournament.Management.API.Models.Domain.User", b =>
-                {
-                    b.HasOne("Tournament.Management.API.Models.Domain.Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("Tournament.Management.API.Models.Domain.UserTournament", b =>
                 {
-                    b.HasOne("Tournament.Management.API.Models.Domain.TournamentFormat", "Format")
-                        .WithMany()
-                        .HasForeignKey("FormatId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Tournament.Management.API.Models.Domain.User", "Organizer")
                         .WithMany()
                         .HasForeignKey("OrganizerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Format");
-
                     b.Navigation("Organizer");
-                });
-
-            modelBuilder.Entity("Tournament.Management.API.Models.Domain.Role", b =>
-                {
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Tournament.Management.API.Models.Domain.Team", b =>
