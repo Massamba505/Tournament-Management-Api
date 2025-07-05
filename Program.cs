@@ -40,22 +40,28 @@ public class Program
         });
 
         // Repositories
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IPlayerStatRepository, PlayerStatRepository>();
         builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-        builder.Services.AddScoped<ITournamentRepository, UserTournamentRepository>();
-        builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+        builder.Services.AddScoped<ITeamMatchRepository, TeamMatchRepository>();
         builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
+        builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+        builder.Services.AddScoped<ITournamentFormatRepository, TournamentFormatRepository>();
         builder.Services.AddScoped<ITournamentTeamRepository, TournamentTeamRepository>();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<ITournamentRepository, UserTournamentRepository>();
 
         // Services
-        builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
-        builder.Services.AddScoped<ITokenService, TokenService>();
-        builder.Services.AddScoped<ITournamentService, TournamentService>();
-        builder.Services.AddScoped<ITeamService, TeamService>();
+        builder.Services.AddScoped<IPlayerStatService, PlayerStatService>();
+        builder.Services.AddScoped<ITeamMatchService, TeamMatchService>();
         builder.Services.AddScoped<ITeamMemberService, TeamMemberService>();
+        builder.Services.AddScoped<ITeamService, TeamService>();
+        builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<ITournamentFormatService, TournamentFormatService>();
+        builder.Services.AddScoped<ITournamentService, TournamentService>();
         builder.Services.AddScoped<ITournamentTeamService, TournamentTeamService>();
+        builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
 
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
