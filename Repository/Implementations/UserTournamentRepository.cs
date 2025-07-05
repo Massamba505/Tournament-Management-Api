@@ -77,4 +77,45 @@ public class UserTournamentRepository(TournamentManagerContext context) : ITourn
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
     }
+    
+    public async Task<IEnumerable<UserTournament>> SearchTournamentsAsync(string searchTerm)
+    {
+        searchTerm = searchTerm.ToLower();
+        
+        return await _context.UserTournaments
+            .Where(t => t.Name.ToLower().Contains(searchTerm) || 
+                         t.Description.ToLower().Contains(searchTerm) ||
+                         t.Location.ToLower().Contains(searchTerm))
+            .Include(t => t.Organizer)
+            .Include(t => t.TournamentTeams)
+                .ThenInclude(tt => tt.Team)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<UserTournament>> GetUpcomingTournamentsAsync(int count = 5)
+    {
+        var now = DateTime.UtcNow;
+        
+        return await _context.UserTournaments
+            .Where(t => t.StartDate > now && t.Status == TournamentStatus.RegistrationOpen)
+            .Include(t => t.Organizer)
+            .Include(t => t.TournamentTeams)
+                .ThenInclude(tt => tt.Team)
+            .OrderBy(t => t.StartDate)
+            .Take(count)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<UserTournament>> GetTournamentsByUserParticipationAsync(Guid userId)
+    {
+        return await _context.UserTournaments
+            .Where(t => t.TournamentTeams.Any(tt => tt.Team.Members.Any(m => m.UserId == userId)))
+            .Include(t => t.Organizer)
+            .Include(t => t.TournamentTeams)
+                .ThenInclude(tt => tt.Team)
+            .Include(t => t.Matches)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+    }
 }

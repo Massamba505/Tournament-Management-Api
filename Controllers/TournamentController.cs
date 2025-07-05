@@ -125,6 +125,48 @@ public class TournamentsController(ITournamentService tournamentService, ITourna
         var tournaments = await _tournamentService.GetTournamentsByStatusAsync(status);
         return Ok(new { data = tournaments });
     }
+    
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchTournaments([FromQuery] string term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return BadRequest(new { message = "Search term cannot be empty" });
+        }
+        
+        var tournaments = await _tournamentService.SearchTournamentsAsync(term);
+        return Ok(new { data = tournaments });
+    }
+    
+    [HttpGet("upcoming")]
+    public async Task<IActionResult> GetUpcomingTournaments([FromQuery] int count = 5)
+    {
+        var tournaments = await _tournamentService.GetUpcomingTournamentsAsync(count);
+        return Ok(new { data = tournaments });
+    }
+    
+    [HttpGet("user/{userId:guid}/participation")]
+    [Authorize]
+    public async Task<IActionResult> GetTournamentsByUserParticipation(Guid userId)
+    {
+        // Security check - only allow users to view their own participation or admins
+        if (userId != GetUserId() && !User.IsInRole("Admin"))
+        {
+            return Forbid();
+        }
+        
+        var tournaments = await _tournamentService.GetTournamentsByUserParticipationAsync(userId);
+        return Ok(new { data = tournaments });
+    }
+    
+    [HttpGet("my-tournaments")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUserTournaments()
+    {
+        var userId = GetUserId();
+        var tournaments = await _tournamentService.GetTournamentsByUserParticipationAsync(userId);
+        return Ok(new { data = tournaments });
+    }
 
     private Guid GetUserId()
     {
