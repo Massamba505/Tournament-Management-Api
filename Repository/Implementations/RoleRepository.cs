@@ -12,6 +12,12 @@ public class RoleRepository : IRoleRepository
             return Task.FromResult(role);
         }
         
+        if (int.TryParse(roleName, out int roleValue) && 
+            Enum.IsDefined(typeof(UserRole), roleValue))
+        {
+            return Task.FromResult((UserRole)roleValue);
+        }
+        
         return Task.FromResult(UserRole.General);
     }
     
