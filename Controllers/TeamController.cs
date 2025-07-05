@@ -96,6 +96,108 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(new { message = "Team deleted" });
     }
 
+    [HttpGet("details/{id:guid}")]
+    public async Task<IActionResult> GetTeamDetails(Guid id)
+    {
+        var teamDetails = await _teamService.GetTeamDetailsByIdAsync(id);
+        if (teamDetails == null)
+        {
+            return NotFound(new { message = "Team not found" });
+        }
+
+        return Ok(new { data = teamDetails });
+    }
+
+    [HttpGet("status/{status}")]
+    public async Task<IActionResult> GetTeamsByStatus(TeamStatus status)
+    {
+        var teams = await _teamService.GetTeamsByStatusAsync(status);
+        return Ok(new { data = teams });
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchTeams([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query) || query.Length < 3)
+        {
+            return BadRequest(new { message = "Search query must be at least 3 characters." });
+        }
+
+        var allTeams = await _teamService.GetTeamsByStatusAsync(TeamStatus.Active);
+        var filteredTeams = allTeams.Where(t => 
+            t.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
+        ).ToList();
+        
+        return Ok(new { data = filteredTeams });
+    }
+
+    [HttpGet("{id:guid}/matches")]
+    public async Task<IActionResult> GetTeamMatches(Guid id, [FromServices] ITeamMatchService teamMatchService)
+    {
+        var team = await _teamService.GetTeamByIdAsync(id);
+        if (team == null)
+        {
+            return NotFound(new { message = "Team not found" });
+        }
+
+        var matches = await teamMatchService.GetMatchesByTeamIdAsync(id);
+        return Ok(new { data = matches });
+    }
+
+    [HttpGet("{id:guid}/statistics")]
+    public async Task<IActionResult> GetTeamStatistics(Guid id, [FromServices] ITeamMatchService teamMatchService, [FromServices] IPlayerStatService playerStatService)
+    {
+        var team = await _teamService.GetTeamByIdAsync(id);
+        if (team == null)
+        {
+            return NotFound(new { message = "Team not found" });
+        }
+
+        var teamDetails = await _teamService.GetTeamDetailsByIdAsync(id);
+        var matches = await teamMatchService.GetMatchesByTeamIdAsync(id);
+        
+        var matchesPlayed = matches.Count();
+        var wins = matches.Count(m => 
+            (m.HomeTeam.Id == id && m.HomeScore > m.AwayScore) || 
+            (m.AwayTeam.Id == id && m.AwayScore > m.HomeScore));
+        var losses = matches.Count(m => 
+            (m.HomeTeam.Id == id && m.HomeScore < m.AwayScore) || 
+            (m.AwayTeam.Id == id && m.AwayScore < m.HomeScore));
+        var draws = matches.Count(m => m.HomeScore == m.AwayScore);
+
+        var playerStats = new List<object>();
+        if (teamDetails != null)
+        {
+            foreach (var member in teamDetails.Members)
+            {
+                var stats = await playerStatService.GetPlayerStatsByPlayerIdAsync(member.UserId);
+                if (stats.Any())
+                {
+                    playerStats.Add(new
+                    {
+                        playerId = member.UserId,
+                        playerName = $"{member.FullName}",
+                        isCaptain = member.IsCaptain,
+                        stats = stats
+                    });
+                }
+            }
+        }
+
+        return Ok(new { 
+            data = new {
+                teamId = id,
+                teamName = team.Name,
+                matchesPlayed,
+                wins,
+                losses,
+                draws,
+                winPercentage = matchesPlayed > 0 ? (wins * 100.0 / matchesPlayed) : 0,
+                playerStats
+            } 
+        });
+    }
+
     private Guid GetUserId()
     {
         return Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
