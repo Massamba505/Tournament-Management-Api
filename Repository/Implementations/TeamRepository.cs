@@ -13,6 +13,10 @@ public class TeamRepository(TournamentManagerContext context) : ITeamRepository
     public async Task<IEnumerable<Team>> GetTeamsByUserIdAsync(Guid userId)
     {
         return await _context.Teams
+                .Include(t => t.Manager)
+                .Include(t => t.Captain)
+                .Include(t => t.Members)
+                    .ThenInclude(m => m.User)
                 .Where(t => t.ManagerId == userId)
                 .ToListAsync();
     }
@@ -22,6 +26,8 @@ public class TeamRepository(TournamentManagerContext context) : ITeamRepository
         return await _context.Teams
             .Include(t => t.Manager)
             .Include(t => t.Captain)
+            .Include(t => t.Members)
+                .ThenInclude(m => m.User)
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
@@ -52,9 +58,11 @@ public class TeamRepository(TournamentManagerContext context) : ITeamRepository
     public async Task<IEnumerable<Team>> GetTeamsByStatusAsync(TeamStatus status)
     {
         return await _context.Teams
-            .Where(t => t.Status == status)
             .Include(t => t.Manager)
             .Include(t => t.Captain)
+            .Include(t => t.Members)
+                .ThenInclude(m => m.User)
+            .Where(t => t.Status == status)
             .ToListAsync();
     }
 }
