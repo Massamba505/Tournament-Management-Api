@@ -90,13 +90,16 @@ public static class TeamMappingExtensions
 
     private static IEnumerable<TeamMemberDto> GetMembers(this Team team)
     {
+        if (team.Members == null)
+            return [];
+            
         return team.Members.Select(m => new TeamMemberDto(
             m.UserId,
-            $"{m.User.Name} {m.User.Surname}",
+            $"{m.User?.Name} {m.User?.Surname}".Trim(),
             m.MemberType,
             team.CaptainId.HasValue && team.CaptainId.Value == m.UserId,
             m.JoinedAt
-        )) ?? [];
+        ));
     }
 
 }
