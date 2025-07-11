@@ -11,18 +11,20 @@ public record TournamentDto(
     string Name,
     string Description,
     string Format,
-    int NumberOfTeams,
+    int MaxNumberOfTeams,
     int MaxPlayersPerTeam,
     DateTime StartDate,
     DateTime EndDate,
+    DateTime RegistrationDeadline,
     string Location,
     UserSummaryDto Organizer,
-    string? BannerImage,
+    string BannerImage,
     string? ContactEmail,
     string? ContactPhone,
     decimal? EntryFee,
     bool IsPublic,
-    TournamentStatus Status
+    TournamentStatus Status,
+    DateTime CreatedAt
 );
 
 public record TournamentDetailDto(
@@ -30,24 +32,24 @@ public record TournamentDetailDto(
     string Name,
     string Description,
     string Format,
-    int NumberOfTeams,
+    int MaxNumberOfTeams,
     int MaxPlayersPerTeam,
     DateTime StartDate,
     DateTime EndDate,
+    DateTime RegistrationDeadline,
     string Location,
     UserSummaryDto Organizer,
-    string? BannerImage,
+    string BannerImage,
     string? ContactEmail,
     string? ContactPhone,
     decimal? EntryFee,
     bool IsPublic,
     TournamentStatus Status,
-    IEnumerable<TournamentTeamDto> Teams,
-    IEnumerable<MatchDto> Matches,
-    DateTime RegistrationDeadline,
     bool AllowJoinViaLink,
     int? MatchDuration,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    IEnumerable<TournamentTeamDto> Teams,
+    IEnumerable<MatchDto> Matches
 );
 
 public record TournamentCreateDto(
@@ -57,11 +59,11 @@ public record TournamentCreateDto(
     [Required]
     string Description,
 
-    [Required] TournamentFormatEnum
-        Format,
+    [Required]
+    TournamentFormatEnum Format,
     
     [Range(2, 100)]
-    int NumberOfTeams,
+    int MaxNumberOfTeams,
 
     [Range(1, 50)]
     int MaxPlayersPerTeam,
@@ -72,12 +74,17 @@ public record TournamentCreateDto(
     [Required]
     DateTime EndDate,
 
+    [Required]
+    DateTime RegistrationDeadline,
+
     [Required, StringLength(200)]
     string Location,
 
-    bool AllowJoinViaLink,
-    [Required] Guid OrganizerId,
-    string? BannerImage,
+    
+    [Required] 
+    Guid OrganizerId,
+    
+    string BannerImage,
 
     [EmailAddress]
     string? ContactEmail,
@@ -87,10 +94,10 @@ public record TournamentCreateDto(
 
     [Range(0, 10000)]
     decimal? EntryFee,
+    
+    bool AllowJoinViaLink,
 
     int? MatchDuration,
-    [Required]
-    DateTime RegistrationDeadline,
 
     bool IsPublic,
     TournamentStatus Status = TournamentStatus.Draft
@@ -99,14 +106,10 @@ public record TournamentCreateDto(
 public record TournamentUpdateDto(
     [StringLength(100)]
     string? Name,
-    
     string? Description,
     DateTime? StartDate,
     DateTime? EndDate,
-    
-    [StringLength(200)]
     string? Location,
-    
     bool? AllowJoinViaLink,
     string? BannerImage,
     

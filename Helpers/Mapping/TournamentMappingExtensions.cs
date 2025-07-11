@@ -20,14 +20,16 @@ public static class TournamentMappingExtensions
             tournament.MaxPlayersPerTeam,
             tournament.StartDate,
             tournament.EndDate,
+            tournament.RegistrationDeadline,
             tournament.Location,
             tournament.GetOrganizer(),
-            tournament.BannerImage,
+            tournament.BannerImage ?? "",
             tournament.ContactEmail,
             tournament.ContactPhone,
             tournament.EntryFee,
             tournament.IsPublic,
-            tournament.Status
+            tournament.Status,
+            tournament.CreatedAt
         );
     }
 
@@ -42,20 +44,20 @@ public static class TournamentMappingExtensions
             tournament.MaxPlayersPerTeam,
             tournament.StartDate,
             tournament.EndDate,
+            tournament.RegistrationDeadline,
             tournament.Location,
             tournament.GetOrganizer(),
-            tournament.BannerImage,
+            tournament.BannerImage ?? "",
             tournament.ContactEmail,
             tournament.ContactPhone,
             tournament.EntryFee,
             tournament.IsPublic,
             tournament.Status,
-            tournament.GetTeams(),
-            tournament.GetMatches(),
-            tournament.RegistrationDeadline,
             tournament.AllowJoinViaLink,
             tournament.MatchDuration,
-            tournament.CreatedAt
+            tournament.CreatedAt,
+            tournament.GetTeams(),
+            tournament.GetMatches()
         );
     }
 
@@ -66,7 +68,7 @@ public static class TournamentMappingExtensions
             Name = dto.Name,
             Description = dto.Description,
             Format = dto.Format,
-            NumberOfTeams = dto.NumberOfTeams,
+            NumberOfTeams = dto.MaxNumberOfTeams,
             MaxPlayersPerTeam = dto.MaxPlayersPerTeam,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
@@ -139,10 +141,10 @@ public static class TournamentMappingExtensions
     {
         return tournament.TournamentTeams
                .Select(tt => new TournamentTeamDto(
-                tt.TeamId,
-                tt.Team.Name,
-                tt.Team.LogoUrl,
-                tt.RegisteredAt
+                    tt.TeamId,
+                    tt.Team.Name,
+                    tt.Team.LogoUrl,
+                    tt.RegisteredAt
             )) ?? [];
     }
 
