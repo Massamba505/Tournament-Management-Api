@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Tournament.Management.API.Models.DTOs.PlayerStats;
 using Tournament.Management.API.Models.DTOs.Teams;
 using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Services.Interfaces;
@@ -13,15 +14,21 @@ public class TeamsController(ITeamService teamService) : ControllerBase
 {
     private readonly ITeamService _teamService = teamService;
 
+    /// <summary>
+    /// Get teams created by the current user
+    /// </summary>
     [HttpGet]
     [Authorize(Roles = "General")]
     public async Task<IActionResult> GetMyTeams()
     {
         var userId = GetUserId();
         var teams = await _teamService.GetMyTeamsAsync(userId);
-        return Ok(new { data = teams});
+        return Ok(new { data = teams });
     }
 
+    /// <summary>
+    /// Get a team by its ID
+    /// </summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTeam(Guid id)
     {
@@ -34,16 +41,21 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(new { data = team });
     }
 
+    /// <summary>
+    /// Create a new team
+    /// </summary>
     [HttpPost]
     [Authorize(Roles = "General")]
     public async Task<IActionResult> CreateTeam([FromBody] TeamCreateDto teamDto)
     {
         var userId = GetUserId();
-        await _teamService.CreateTeamAsync(userId,teamDto);
-
-        return StatusCode(StatusCodes.Status201Created, new { message = "Team Created"});
+        await _teamService.CreateTeamAsync(userId, teamDto);
+        return StatusCode(StatusCodes.Status201Created, new { message = "Team created" });
     }
 
+    /// <summary>
+    /// Update an existing team
+    /// </summary>
     [HttpPut("{id}")]
     [Authorize(Roles = "General")]
     public async Task<IActionResult> UpdateTeam(Guid id, [FromBody] TeamUpdateDto team)
@@ -57,6 +69,9 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(new { message = "Team updated" });
     }
 
+    /// <summary>
+    /// Deactivate a team
+    /// </summary>
     [HttpPatch("{id}/deactivate")]
     [Authorize(Roles = "General")]
     public async Task<IActionResult> DeactivateTeam(Guid id)
@@ -70,6 +85,9 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(new { message = "Team deactivated" });
     }
 
+    /// <summary>
+    /// Activate a team
+    /// </summary>
     [HttpPatch("{id}/activate")]
     [Authorize(Roles = "General")]
     public async Task<IActionResult> ActivateTeam(Guid id)
@@ -83,6 +101,9 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(new { message = "Team activated" });
     }
 
+    /// <summary>
+    /// Delete a team
+    /// </summary>
     [HttpDelete("{id}")]
     [Authorize(Roles = "General")]
     public async Task<IActionResult> DeleteTeam(Guid id)
@@ -96,7 +117,10 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(new { message = "Team deleted" });
     }
 
-    [HttpGet("details/{id:guid}")]
+    /// <summary>
+    /// Get full team details including members
+    /// </summary>
+    [HttpGet("{id:guid}/details")]
     public async Task<IActionResult> GetTeamDetails(Guid id)
     {
         var teamDetails = await _teamService.GetTeamDetailsByIdAsync(id);
@@ -108,6 +132,9 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(new { data = teamDetails });
     }
 
+    /// <summary>
+    /// Get teams by their current status
+    /// </summary>
     [HttpGet("status/{status}")]
     public async Task<IActionResult> GetTeamsByStatus(TeamStatus status)
     {
@@ -115,6 +142,9 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(new { data = teams });
     }
 
+    /// <summary>
+    /// Search for active teams by name
+    /// </summary>
     [HttpGet("search")]
     public async Task<IActionResult> SearchTeams([FromQuery] string query)
     {
@@ -124,13 +154,16 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         }
 
         var allTeams = await _teamService.GetTeamsByStatusAsync(TeamStatus.Active);
-        var filteredTeams = allTeams.Where(t => 
-            t.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
-        ).ToList();
-        
-        return Ok(new { data = filteredTeams });
+        var filtered = allTeams
+            .Where(t => t.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        return Ok(new { data = filtered });
     }
 
+    /// <summary>
+    /// Get matches for a specific team
+    /// </summary>
     [HttpGet("{id:guid}/matches")]
     public async Task<IActionResult> GetTeamMatches(Guid id, [FromServices] ITeamMatchService teamMatchService)
     {
@@ -144,6 +177,9 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(new { data = matches });
     }
 
+    /// <summary>
+    /// Get statistics for a team including win/loss and player stats
+    /// </summary>
     [HttpGet("{id:guid}/statistics")]
     public async Task<IActionResult> GetTeamStatistics(Guid id, [FromServices] ITeamMatchService teamMatchService, [FromServices] IPlayerStatService playerStatService)
     {
@@ -155,17 +191,13 @@ public class TeamsController(ITeamService teamService) : ControllerBase
 
         var teamDetails = await _teamService.GetTeamDetailsByIdAsync(id);
         var matches = await teamMatchService.GetMatchesByTeamIdAsync(id);
-        
+
         var matchesPlayed = matches.Count();
-        var wins = matches.Count(m => 
-            (m.HomeTeam.Id == id && m.HomeScore > m.AwayScore) || 
-            (m.AwayTeam.Id == id && m.AwayScore > m.HomeScore));
-        var losses = matches.Count(m => 
-            (m.HomeTeam.Id == id && m.HomeScore < m.AwayScore) || 
-            (m.AwayTeam.Id == id && m.AwayScore < m.HomeScore));
+        var wins = matches.Count(m => (m.HomeTeam.Id == id && m.HomeScore > m.AwayScore) || (m.AwayTeam.Id == id && m.AwayScore > m.HomeScore));
+        var losses = matches.Count(m => (m.HomeTeam.Id == id && m.HomeScore < m.AwayScore) || (m.AwayTeam.Id == id && m.AwayScore < m.HomeScore));
         var draws = matches.Count(m => m.HomeScore == m.AwayScore);
 
-        var playerStats = new List<object>();
+        var playerStats = new List<IEnumerable<PlayerStatDto>>();
         if (teamDetails != null)
         {
             foreach (var member in teamDetails.Members)
@@ -173,13 +205,7 @@ public class TeamsController(ITeamService teamService) : ControllerBase
                 var stats = await playerStatService.GetPlayerStatsByPlayerIdAsync(member.UserId);
                 if (stats.Any())
                 {
-                    playerStats.Add(new
-                    {
-                        playerId = member.UserId,
-                        playerName = $"{member.FullName}",
-                        isCaptain = member.IsCaptain,
-                        stats = stats
-                    });
+                    playerStats.Add(stats);
                 }
             }
         }
@@ -194,7 +220,7 @@ public class TeamsController(ITeamService teamService) : ControllerBase
                 draws,
                 winPercentage = matchesPlayed > 0 ? (wins * 100.0 / matchesPlayed) : 0,
                 playerStats
-            } 
+            }
         });
     }
 
