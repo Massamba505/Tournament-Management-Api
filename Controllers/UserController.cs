@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tournament.Management.API.Models.DTOs.Users;
-using Tournament.Management.API.Models.Enums;
 using Tournament.Management.API.Services.Interfaces;
 
 namespace Tournament.Management.API.Controllers;
@@ -18,16 +17,14 @@ public class UsersController(
     private readonly ITeamService _teamService = teamService;
     private readonly IPlayerStatService _playerStatService = playerStatService;
 
-    [Authorize]
+    /// <summary>
+    /// Get information about the currently logged-in user
+    /// </summary>
     [HttpGet("me")]
+    [Authorize]
     public async Task<IActionResult> GetCurrentUser()
     {
         var userId = GetUserId();
-        if (userId == Guid.Empty)
-        {
-            return Unauthorized(new { message = "Invalid token." });
-        }
-
         var user = await _userService.GetUserByIdAsync(userId);
         if (user is null)
         {
@@ -37,8 +34,11 @@ public class UsersController(
         return Ok(new { data = user });
     }
 
-    [Authorize]
+    /// <summary>
+    /// Get a specific user by ID
+    /// </summary>
     [HttpGet("{userId:guid}")]
+    [Authorize]
     public async Task<IActionResult> GetUserById(Guid userId)
     {
         var user = await _userService.GetUserByIdAsync(userId);
@@ -50,21 +50,27 @@ public class UsersController(
         return Ok(new { data = user });
     }
 
-    [Authorize]
+    /// <summary>
+    /// Get detailed user profile by ID
+    /// </summary>
     [HttpGet("{userId:guid}/profile")]
+    [Authorize]
     public async Task<IActionResult> GetUserProfile(Guid userId)
     {
-        var userDetails = await _userService.GetUserDetailsByIdAsync(userId);
-        if (userDetails is null)
+        var profile = await _userService.GetUserDetailsByIdAsync(userId);
+        if (profile is null)
         {
             return NotFound(new { message = "User profile not found." });
         }
 
-        return Ok(new { data = userDetails });
+        return Ok(new { data = profile });
     }
 
-    [Authorize]
+    /// <summary>
+    /// Update the user's profile
+    /// </summary>
     [HttpPut("{userId:guid}/profile")]
+    [Authorize]
     public async Task<IActionResult> UpdateUserProfile(Guid userId, [FromBody] UserUpdateDto updateDto)
     {
         var currentUserId = GetUserId();
@@ -73,8 +79,8 @@ public class UsersController(
             return Forbid();
         }
 
-        var result = await _userService.UpdateUserAsync(userId, updateDto);
-        if (!result)
+        var success = await _userService.UpdateUserAsync(userId, updateDto);
+        if (!success)
         {
             return NotFound(new { message = "User not found or update failed." });
         }
@@ -82,12 +88,15 @@ public class UsersController(
         return Ok(new { message = "Profile updated successfully." });
     }
 
-    [Authorize(Roles = "Admin")]
+    /// <summary>
+    /// Update the status of a user
+    /// </summary>
     [HttpPatch("{userId:guid}/status")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateUserStatus(Guid userId, [FromBody] UpdateUserStatusDto statusDto)
     {
-        var result = await _userService.UpdateUserStatusAsync(userId, statusDto.Status);
-        if (!result)
+        var success = await _userService.UpdateUserStatusAsync(userId, statusDto.Status);
+        if (!success)
         {
             return NotFound(new { message = "User not found or status update failed." });
         }
@@ -95,8 +104,11 @@ public class UsersController(
         return Ok(new { message = "User status updated successfully." });
     }
 
-    [Authorize]
+    /// <summary>
+    /// Get player statistics for a specific user
+    /// </summary>
     [HttpGet("{userId:guid}/stats")]
+    [Authorize(Roles = "General")]
     public async Task<IActionResult> GetUserStats(Guid userId)
     {
         var user = await _userService.GetUserByIdAsync(userId);
@@ -105,19 +117,23 @@ public class UsersController(
             return NotFound(new { message = "User not found." });
         }
 
-        var playerStats = await _playerStatService.GetPlayerStatsByPlayerIdAsync(userId);
-        
-        return Ok(new { 
-            data = new {
+        var stats = await _playerStatService.GetPlayerStatsByPlayerIdAsync(userId);
+        return Ok(new
+        {
+            data = new
+            {
                 userId,
                 name = user.Name,
                 surname = user.Surname,
-                stats = playerStats
-            } 
+                stats
+            }
         });
     }
 
-    [Authorize]
+    /// <summary>
+    /// Get all teams the user is a part of
+    /// </summary>
+    [Authorize(Roles = "General")]
     [HttpGet("{userId:guid}/teams")]
     public async Task<IActionResult> GetUserTeams(Guid userId)
     {
@@ -128,12 +144,14 @@ public class UsersController(
         }
 
         var teams = await _teamService.GetMyTeamsAsync(userId);
-        
         return Ok(new { data = teams });
     }
 
-    [Authorize]
+    /// <summary>
+    /// Search users by name, surname, or email
+    /// </summary>
     [HttpGet("search")]
+    [Authorize]
     public async Task<IActionResult> SearchUsers([FromQuery] string query)
     {
         if (string.IsNullOrWhiteSpace(query) || query.Length < 3)
@@ -142,20 +160,18 @@ public class UsersController(
         }
 
         var users = await _userService.GetUsersAsync();
-        var filteredUsers = users.Where(u => 
-            u.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || 
+
+        var results = users.Where(u =>
+            u.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             u.Surname.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             u.Email.Contains(query, StringComparison.OrdinalIgnoreCase)
         ).ToList();
-        
-        return Ok(new { data = filteredUsers });
+
+        return Ok(new { data = results });
     }
 
     private Guid GetUserId()
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid userId) 
-            ? Guid.Empty 
-            : userId;
+        return Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     }
 }
