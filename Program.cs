@@ -20,28 +20,56 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
-        
-        // Add Swagger services
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(c =>
+        AddSwagger(builder.Services);
+        AddCors(builder.Services);
+        AddDatabase(builder.Services, builder.Configuration);
+        AddRepositories(builder.Services);
+        AddServices(builder.Services);
+        AddJwtAuthentication(builder.Services, builder.Configuration);
+
+        var app = builder.Build();
+
+        app.UseCors("CorsPolicy");
+
+        if (app.Environment.IsDevelopment())
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { 
-                Title = "Tournament Management API", 
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Tournament Management API v1");
+                c.RoutePrefix = string.Empty;
+            });
+        }
+
+        app.UseHttpsRedirection();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.MapControllers();
+        app.Run();
+    }
+
+    private static void AddSwagger(IServiceCollection services)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Tournament Management API",
                 Version = "v1",
                 Description = "API for managing tournaments, teams, and players"
             });
-            
-            // Add JWT Authentication to Swagger
+
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                Description = "JWT Authorization header using the Bearer scheme. Example: 'Authorization: Bearer {token}'",
                 Name = "Authorization",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.ApiKey,
                 Scheme = "Bearer"
             });
 
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
                     new OpenApiSecurityScheme
@@ -53,91 +81,82 @@ public class Program
                         },
                         Scheme = "oauth2",
                         Name = "Bearer",
-                        In = ParameterLocation.Header,
+                        In = ParameterLocation.Header
                     },
                     new List<string>()
                 }
             });
-        });
 
-        builder.Services.AddCors(option =>
+            var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+        });
+    }
+
+    private static void AddCors(IServiceCollection services)
+    {
+        services.AddCors(options =>
         {
-            option.AddPolicy("CorsPolicy", policy =>
+            options.AddPolicy("CorsPolicy", policy =>
             {
                 policy.WithOrigins("http://localhost:5173")
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials();
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();
             });
         });
+    }
 
-        builder.Services.AddDbContext<TournamentManagerContext>(options =>
+    private static void AddDatabase(IServiceCollection services, IConfiguration config)
+    {
+        services.AddDbContext<TournamentManagerContext>(options =>
         {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            options.UseSqlServer(config.GetConnectionString("DefaultConnection"));
         });
+    }
 
-        // Repositories
-        builder.Services.AddScoped<IPlayerStatRepository, PlayerStatRepository>();
-        builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-        builder.Services.AddScoped<ITeamMatchRepository, TeamMatchRepository>();
-        builder.Services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
-        builder.Services.AddScoped<ITeamRepository, TeamRepository>();
-        builder.Services.AddScoped<ITournamentFormatRepository, TournamentFormatRepository>();
-        builder.Services.AddScoped<ITournamentTeamRepository, TournamentTeamRepository>();
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<ITournamentRepository, UserTournamentRepository>();
-
-        // Services
-        builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddScoped<IPlayerStatService, PlayerStatService>();
-        builder.Services.AddScoped<ITeamMatchService, TeamMatchService>();
-        builder.Services.AddScoped<ITeamMemberService, TeamMemberService>();
-        builder.Services.AddScoped<ITeamService, TeamService>();
-        builder.Services.AddScoped<ITokenService, TokenService>();
-        builder.Services.AddScoped<ITournamentFormatService, TournamentFormatService>();
-        builder.Services.AddScoped<ITournamentService, TournamentService>();
-        builder.Services.AddScoped<ITournamentTeamService, TournamentTeamService>();
-        builder.Services.AddScoped<IUserService, UserService>();
-        builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
-
-
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    private static void AddJwtAuthentication(IServiceCollection services, IConfiguration config)
+    {
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidIssuer = config["Jwt:Issuer"],
                     ValidateAudience = true,
-                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    ValidAudience = config["Jwt:Audience"],
                     ValidateLifetime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
                     ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!))
                 };
             });
+    }
 
-        var app = builder.Build();
+    private static void AddRepositories(IServiceCollection services)
+    {
+        services.AddScoped<IPlayerStatRepository, PlayerStatRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<ITeamMatchRepository, TeamMatchRepository>();
+        services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
+        services.AddScoped<ITeamRepository, TeamRepository>();
+        services.AddScoped<ITournamentFormatRepository, TournamentFormatRepository>();
+        services.AddScoped<ITournamentTeamRepository, TournamentTeamRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ITournamentRepository, UserTournamentRepository>();
+    }
 
-
-        app.UseCors("CorsPolicy");
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI(c => {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Tournament Management API v1");
-                c.RoutePrefix = string.Empty;
-            });
-        }
-
-        app.UseHttpsRedirection();
-
-        app.UseAuthentication();
-        app.UseAuthorization();
-
-
-        app.MapControllers();
-
-        app.Run();
+    private static void AddServices(IServiceCollection services)
+    {
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IPlayerStatService, PlayerStatService>();
+        services.AddScoped<ITeamMatchService, TeamMatchService>();
+        services.AddScoped<ITeamMemberService, TeamMemberService>();
+        services.AddScoped<ITeamService, TeamService>();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ITournamentFormatService, TournamentFormatService>();
+        services.AddScoped<ITournamentService, TournamentService>();
+        services.AddScoped<ITournamentTeamService, TournamentTeamService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IPasswordHelper, PasswordHelper>();
     }
 }
