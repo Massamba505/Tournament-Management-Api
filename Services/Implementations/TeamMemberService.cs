@@ -18,6 +18,17 @@ public class TeamMemberService(ITeamMemberRepository teamMemberRepository, ITeam
         return members.Select(m => m.ToDto());
     }
 
+    public async Task<TeamMemberDto?> GetTeamMemberAsync(Guid teamId, Guid userId)
+    {
+        var member = await _teamMemberRepository.GetTeamMemberByTeamIdAsync(teamId, userId);
+        if(member is null)
+        {
+            return null;
+        }
+
+        return member.ToDto();
+    }
+
     public async Task<IEnumerable<TeamMemberDto>> GetTeamMembersByTypeAsync(Guid teamId, MemberType memberType)
     {
         var members = await _teamMemberRepository.GetTeamMembersByTypeAsync(teamId, memberType);

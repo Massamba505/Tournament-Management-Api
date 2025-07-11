@@ -8,6 +8,7 @@ public interface ITeamMemberService
     Task<IEnumerable<TeamMemberDto>> GetTeamMembersAsync(Guid teamId);
     Task<IEnumerable<TeamMemberDto>> GetTeamMembersByTypeAsync(Guid teamId, MemberType memberType);
     Task AddTeamMemberAsync(Guid teamId, AddTeamMemberDto dto);
+    Task<TeamMemberDto?> GetTeamMemberAsync(Guid teamId, Guid userId);
     Task<bool> RemoveTeamMemberAsync(Guid teamId, Guid userId);
     Task<bool> AssignTeamCaptainAsync(Guid teamId, Guid userId);
     Task<bool> UpdateMemberTypeAsync(Guid teamId, Guid userId, MemberType memberType);

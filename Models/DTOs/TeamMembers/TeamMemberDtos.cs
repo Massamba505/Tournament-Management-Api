@@ -12,14 +12,9 @@ public record TeamMemberDto(
 );
 
 public record AddTeamMemberDto(
-    [Required]
-    Guid UserId,
-
-    [Required]
-    Guid TeamId
+    [Required] Guid UserId
 );
 
 public record UpdateMemberTypeDto(
-    [Required]
-    MemberType MemberType
+    [Required] MemberType MemberType
 );

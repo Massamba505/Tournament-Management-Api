@@ -91,7 +91,7 @@ public class TeamInvitationsController(ITeamInvitationService teamInvitationServ
 
         if (responseDto.Status == InvitationStatus.Accepted)
         {
-            await _teamMemberService.AddTeamMemberAsync(invitation.TeamId, new Models.DTOs.TeamMembers.AddTeamMemberDto(userId, invitation.TeamId));
+            await _teamMemberService.AddTeamMemberAsync(invitation.TeamId, new Models.DTOs.TeamMembers.AddTeamMemberDto(userId));
             return Ok(new { message = "Invitation accepted and you have been added to the team" });
         }
 
