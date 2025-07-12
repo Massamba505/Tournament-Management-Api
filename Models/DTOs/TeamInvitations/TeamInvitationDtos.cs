@@ -4,6 +4,14 @@ using Tournament.Management.API.Models.Enums;
 
 namespace Tournament.Management.API.Models.DTOs.TeamInvitations;
 
+public enum InvitationStatus
+{
+    Pending,
+    Accepted,
+    Rejected,
+    Expired
+}
+
 public record TeamInvitationDto(
     Guid Id,
     Guid TeamId,
@@ -18,25 +26,10 @@ public record TeamInvitationDto(
 );
 
 public record TeamInvitationCreateDto(
-    [Required]
-    Guid TeamId,
-    
-    [Required]
-    Guid InvitedUserId,
-    
-    [Required]
-    Guid InvitedByUserId
+    [Required] Guid TeamId,
+    [Required] Guid InvitedUserId
 );
 
 public record TeamInvitationResponseDto(
-    [Required]
-    InvitationStatus Status
+    [Required] InvitationStatus Status
 );
-
-public enum InvitationStatus
-{
-    Pending,
-    Accepted,
-    Rejected,
-    Expired
-}
