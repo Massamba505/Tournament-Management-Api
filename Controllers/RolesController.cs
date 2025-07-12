@@ -10,7 +10,9 @@ namespace Tournament.Management.API.Controllers;
 public class RolesController(IRoleRepository roleRepository) : ControllerBase
 {
     private readonly IRoleRepository _roleRepository = roleRepository;
-
+    /// <summary>
+    /// Return all of the roles
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAllRoles()
     {
