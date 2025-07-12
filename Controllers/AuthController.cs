@@ -11,74 +11,75 @@ public class AuthController(IAuthService authService) : ControllerBase
 {
     private readonly IAuthService _authService = authService;
 
+    /// <summary>
+    /// Register a new user and return a JWT token if successful
+    /// </summary>
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] UserRegisterDto userRegisterDto)
     {
         if (!ModelState.IsValid)
         {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage);
+
             return BadRequest(new
             {
                 message = "Invalid data",
-                error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                errors
             });
         }
 
-        try
-        {
-            var token = await _authService.RegisterUserAsync(userRegisterDto);
-            if(token == null)
-            {
-                return BadRequest(new {message = "Please select a role" });
-            }
+        var token = await _authService.RegisterUserAsync(userRegisterDto);
 
-            return Ok(new
-            {
-                token,
-                message = "Registered successfully"
-            });
-        }
-        catch (ArgumentException ex)
+        if (token == null)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(new { message = "Please select a valid user role." });
         }
-        catch (Exception ex)
+
+        return Ok(new
         {
-            return StatusCode(500, new { message = "Registration failed", error = ex.Message });
-        }
+            token,
+            message = "Registered successfully"
+        });
     }
 
+    /// <summary>
+    /// Login a user and return a JWT token if credentials are valid
+    /// </summary>
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser([FromBody] UserLoginDto userLoginDto)
     {
         if (!ModelState.IsValid)
         {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage);
+
             return BadRequest(new
             {
                 message = "Invalid login data",
-                error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                errors
             });
         }
 
-        try
-        {
-            var token = await _authService.LoginUserAsync(userLoginDto);
-            if (token == null)
-            {
-                return Unauthorized(new { message = "Invalid email or password" });
-            }
+        var token = await _authService.LoginUserAsync(userLoginDto);
 
-            return Ok(new
-            {
-                token,
-                message = "Login successful"
-            });
-        }
-        catch (Exception ex)
+        if (token == null)
         {
-            return StatusCode(500, new { message = "Login failed", error = ex.Message });
+            return Unauthorized(new { message = "Invalid email or password" });
         }
+
+        return Ok(new
+        {
+            token,
+            message = "Login successful"
+        });
     }
 
+    /// <summary>
+    /// Logs out the current user
+    /// </summary>
     [Authorize]
     [HttpPost("logout")]
     public IActionResult LogoutUser()
