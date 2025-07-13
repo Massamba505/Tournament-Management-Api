@@ -6,6 +6,7 @@ namespace Tournament.Management.API.Models.DTOs.TeamMembers;
 public record TeamMemberDto(
     Guid UserId,
     string FullName,
+    string ProfilePicture,
     MemberType MemberType,
     bool IsCaptain,
     DateTime JoinedAt

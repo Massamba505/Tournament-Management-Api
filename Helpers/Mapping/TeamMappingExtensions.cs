@@ -93,13 +93,7 @@ public static class TeamMappingExtensions
         if (team.Members == null)
             return [];
             
-        return team.Members.Select(m => new TeamMemberDto(
-            m.UserId,
-            $"{m.User?.Name} {m.User?.Surname}".Trim(),
-            m.MemberType,
-            team.CaptainId.HasValue && team.CaptainId.Value == m.UserId,
-            m.JoinedAt
-        ));
+        return team.Members.Select(m => m.ToDto());
     }
 
 }

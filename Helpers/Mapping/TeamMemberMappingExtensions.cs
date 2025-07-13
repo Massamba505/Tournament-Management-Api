@@ -10,6 +10,7 @@ public static class TeamMemberMappingExtensions
         return new TeamMemberDto(
             member.UserId,
             $"{member.User.Name} {member.User.Surname}",
+            member.User.ProfilePicture ?? "no-image",
             member.MemberType,
             member.Team.CaptainId == member.UserId,
             member.JoinedAt
